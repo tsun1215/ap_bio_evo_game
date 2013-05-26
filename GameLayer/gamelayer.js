@@ -5,11 +5,20 @@ var focus;
 
 function initGame() {
 	stage = new createjs.Stage("screen");
-	Settlement.prototype = createjs.Shape();
+	console.log("chkpt 1");
+	console.log("chkpt 2");
 	sList = new Array();
+
 	var s1 = createSettlement(100,5,5);
+
+	stage.addChild(s1);
+	sList.push(s1);
+
 	initScreen();
 }
+
+Settlement.prototype = new createjs.Shape();
+Settlement.prototype.constructor = Settlement;
 
 function initScreen() {
 	createjs.Ticker.addEventListener("tick", refresh);
@@ -28,46 +37,33 @@ function mouseHandler(event){
 	console.log("chkpt");
 	if (event.type == "mousedown"){
 		console.log("mousedown");
-		focus = event.target.parent;
+		focus = event.target;
 		event.addEventListener("mouseup", function(evt) {
 			console.log("mouseup");
 			focus.destination = new Loc(evt.stageX, evt.stageY);
-			console.log(event.target);
 			console.log(focus);
 			focus = null;
 		});
 	}
 }
-function Settlement(pop, xCoord, yCoord) {
-	this.population = pop;
-	this.destination = null;
-	this.speed = 1;
-	this.x = xCoord;
-	this.y = yCoord;
-	this.setX = function(x2){shape.x = x2}
-	this.setY = function(y2){shape.y = y2}
-	this.getX = function() {return this.x;}
-	this.getY = function() {return this.y}
-	this.migrateOnce = migrateOnce;
-	this.addEventListener("mousedown", mouseHandler);
-
-	// sprite = new createjs.Shape();
-	// sprite.graphics.beginFill("red").drawCircle(0,0,10);
-	// sprite.x = xCoord;
-	// sprite.y = yCoord;
-	// stage.addChild(sprite);
-	// sprite.addEventListener("mousedown", mouseHandler);
-	// this.sprite = sprite;
-}
-
 function createSettlement(pop, xCoord, yCoord){
-	console.log("WE HAVE NOT MADE A SETTLE");
-	var settle = new Settlement(pop, xCoord, yCoord);
-	console.log("WE MADE A SETTLE");
-	stage.addChild(settle);
+	var settle = new Settlement();
+	settle.population = 100;
+	settle.x = xCoord;
+	settle.y = yCoord;
 	settle.graphics.beginFill("red").drawCircle(0,0,10);
+
 	return settle;
 }
+function Settlement() {
+	this.population;
+	this.destination;
+	this.speed;
+	this.migrateOnce = migrateOnce;
+	this.addEventListener("mousedown", mouseHandler);
+}
+
+
 
 
 var migrateOnce = function(fpsDelta){
@@ -82,8 +78,8 @@ var migrateOnce = function(fpsDelta){
 			flipped = -1;
 		}
 		var totalMovement = fpsDelta * this.speed;
-		this.x += flipped*totalMovement*cos(angle);
-		this.y += flipped*totalMovement*sin(angle);
+		this.x += flipped*totalMovement*Math.cos(angle);
+		this.y += flipped*totalMovement*Math.sin(angle);
 	}
 }
 
