@@ -66,6 +66,7 @@ function mouseHandler(event){
 		if (focus != null){
 			console.log("Secondclicked");
 			console.log(focus.movingPop);
+			console.log(sight.alpha);
 			if (focus.movingPop > 0){
 				console.log("focus.movingPop > 0");
 				if (focus.movingPop < focus.population){	
@@ -73,18 +74,20 @@ function mouseHandler(event){
 					settle.destinationX = event.stageX;
 					settle.destinationY = event.stageY;
 					focus.population = focus.population - focus.movingPop;
-					focus = null;
 				} else {
 					focus.destinationX = event.stageX;
 					focus.destinationY = event.stageY;
-					focus.movingPop = 0;
 				} 
+			} else {
+				sight.alpha = 0;
+				popAdjuster.alpha = 0
 			}
-			
-			sight.alpha = 0;
-			popAdjuster.alpha = 0;
+			// sight.alpha = 0;
+			// popAdjuster.alpha = 0;
+			focus.movingPop = focus.population;
 			console.log("focus.movingPop");
 			focus = null;
+			console.log(focus);
 			// stage.removeEventListener('click', stageEventHandler);
 			stage.removeEventListener('stagemousemove', stageEventHandler);
 			// stage.removeEventListener('mouseWheel', stageEventHandler);	
@@ -95,9 +98,8 @@ function mouseHandler(event){
 			aimSight(event.stageX, event.stageY);
 			sight.alpha = .5;
 			popAdjuster.alpha = 1;
+			console.log(sight.alpha);
 			console.log("first clicked");
-			// stage.addEventListener("click", stageEventHandler);
-			console.log("added mouse stuff to stage");
 			console.log(focus);
 			stage.addEventListener("stagemousemove", stageEventHandler);
 			// stage.addEventListener("mouseWheel", stageEventHandler);
@@ -264,7 +266,7 @@ function stageEventHandler(event){
 
 function Settlement(pop, xCoord, yCoord, map,idealT,tempResist) {
 	this.population = pop;
-	this.movingPop = 0;
+	this.movingPop = pop;
 	this.x = xCoord;
 	this.y = yCoord;
 	this.destinationX;
@@ -293,8 +295,8 @@ var migrateOnce = function(){
 		// console.log("cleared MO CKPT 1");
 		// console.log(this.destinationX);
 		// console.log(this.x);
-		if (Math.abs(this.destinationX - this.x) > 20 ||
-			Math.abs(this.destinationY - this.y) > 20){
+		if (Math.abs(this.destinationX - this.x) > 5 ||
+			Math.abs(this.destinationY - this.y) > 5){
 		// flipped accounts for problems with arctan's range only being -pi/2 to pi/2
 		// either 1 (atan works) or -1 (atan doesn't work)
 		//console.log("cleared MO CHKPT2");
@@ -310,6 +312,10 @@ var migrateOnce = function(){
 		
 		this.x += flipped*totalMovement*Math.cos(angle);
 		this.y += flipped*totalMovement*Math.sin(angle);
+	} else {
+			this.destinationX = null;
+			sight.alpha = 0;
+			popAdjuster.alpha = 0;
 	}
 } else {
 	this.destinationX = null;
