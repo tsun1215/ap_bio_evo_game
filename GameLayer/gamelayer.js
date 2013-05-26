@@ -28,10 +28,13 @@ function refresh() {
 }
 
 function mouseHandler(event){
+	console.log("chkpt");
 	if (event.type == "mousedown"){
+		console.log("mousedown");
 		focus = event.target.parent;
 	}
 	if (event.type == "mouseup"){
+		console.log("mouseup");
 		focus.destination = new Loc(event.stageX, event.stageY);
 		focus = null;
 	}
@@ -41,8 +44,7 @@ var Settlement = function(pop, xCoord, yCoord) {
 	this.population = pop;
 	this.destination = null;
 	this.speed = 1;
-	this.shape = new Sprite(xCoord, yCoord, 10);
-	stage.addChild(this.shape);
+	this.shape = new Sprite(xCoord, yCoord);
 	this.setX = function(x2){shape.x = x2}
 	this.setY = function(y2){shape.y = y2}
 	this.getX = function() {return this.shape.x;}
@@ -50,11 +52,12 @@ var Settlement = function(pop, xCoord, yCoord) {
 	this.migrateOnce = migrateOnce;
 }
 
-var Sprite = function(xCoord, yCoord, radius) {
+var Sprite = function(xCoord, yCoord) {
 	var shape = new createjs.Shape();
-	shape.graphics.beginFill("red").drawCircle(-radius,-radius,radius);
+	shape.graphics.beginFill("red").drawCircle(0, 0, 10);
 	shape.x = xCoord;
 	shape.y = yCoord;
+	stage.addChild(shape);
 }
 
 var migrateOnce = function(fpsDelta){
