@@ -15,9 +15,7 @@ function initGame() {
 function initScreen() {
 	createjs.Ticker.addEventListener("tick", refresh);
 	createjs.Ticker.setInterval(interval);
-	stage.addEventListener("mousedown", mouseHandler);
-	stage.enableMouseOver(10);
-	stage.mouseMoveOutside = true;
+	
 }
 
 function refresh() {
@@ -32,11 +30,13 @@ function mouseHandler(event){
 	if (event.type == "mousedown"){
 		console.log("mousedown");
 		focus = event.target.parent;
-	}
-	if (event.type == "mouseup"){
-		console.log("mouseup");
-		focus.destination = new Loc(event.stageX, event.stageY);
-		focus = null;
+		event.addEventListener("mouseup", function(evt) {
+			console.log("mouseup");
+			focus.destination = new Loc(evt.stageX, evt.stageY);
+			console.log(event.target);
+			console.log(focus);
+			focus = null;
+		});
 	}
 }
 
@@ -44,20 +44,22 @@ var Settlement = function(pop, xCoord, yCoord) {
 	this.population = pop;
 	this.destination = null;
 	this.speed = 1;
-	this.shape = new Sprite(xCoord, yCoord);
+	this.x = 1;
+	this.y = 1;
 	this.setX = function(x2){shape.x = x2}
 	this.setY = function(y2){shape.y = y2}
 	this.getX = function() {return this.shape.x;}
 	this.getY = function() {return this.shape.y}
 	this.migrateOnce = migrateOnce;
-}
 
-var Sprite = function(xCoord, yCoord) {
-	var shape = new createjs.Shape();
-	shape.graphics.beginFill("red").drawCircle(0, 0, 10);
-	shape.x = xCoord;
-	shape.y = yCoord;
-	stage.addChild(shape);
+	sprite = new createjs.Shape();
+	sprite.graphics.beginFill("red").drawCircle(0,0,10);
+	sprite.x = xCoord;
+	sprite.y = yCoord;
+	stage.addChild(sprite);
+	this.addChild(sprite);
+	sprite.addEventListener("mousedown", mouseHandler);
+	this.sprite = sprite;
 }
 
 var migrateOnce = function(fpsDelta){
