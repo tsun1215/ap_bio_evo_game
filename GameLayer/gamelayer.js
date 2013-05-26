@@ -123,6 +123,7 @@ function mouseHandler(event){
 		if (focus != null){
 			console.log("Secondclicked");
 			console.log(focus.movingPop);
+			console.log(sight.alpha);
 			if (focus.movingPop > 0){
 				console.log("focus.movingPop > 0");
 				var loc = stage.globalToLocal(event.stageX, event.stageY);
@@ -131,16 +132,19 @@ function mouseHandler(event){
 					settle.destinationX = loc.x;
 					settle.destinationY = loc.y;
 					focus.population = focus.population - focus.movingPop;
-					focus = null;
 				} else {
 					focus.destinationX = loc.x;
 					focus.destinationY = loc.y;
 				} 
+			} else {
+				sight.alpha = 0;
+				popAdjuster.alpha = 0
 			}
-			sight.alpha = 0;
-			popAdjuster.alpha = 0;
-			console.log("focus.movingPop");
+			// sight.alpha = 0;
+			// popAdjuster.alpha = 0;
+			focus.movingPop = focus.population;
 			focus = null;
+			// stage.removeEventListener('click', stageEventHandler);
 			stage.removeEventListener('stagemousemove', stageEventHandler);
 
 		} else {
@@ -149,8 +153,8 @@ function mouseHandler(event){
 			aimSight(event.stageX, event.stageY);
 			sight.alpha = .5;
 			popAdjuster.alpha = 1;
+			console.log(sight.alpha);
 			console.log("first clicked");
-			console.log("added mouse stuff to stage");
 			console.log(focus);
 			stage.addEventListener("stagemousemove", stageEventHandler);
 		}
@@ -170,7 +174,7 @@ function stageEventHandler(event){
 
 function Settlement(pop, xCoord, yCoord, map,idealT,tempResist) {
 	this.population = pop;
-	this.movingPop = 0;
+	this.movingPop = pop;
 	this.x = xCoord;
 	this.y = yCoord;
 	this.destinationX;
@@ -179,7 +183,7 @@ function Settlement(pop, xCoord, yCoord, map,idealT,tempResist) {
 	this.movingPop;
 	this.migrateOnce = migrateOnce;
 	this.addEventListener("click", mouseHandler);
-	this.graphics.beginFill("red").drawCircle(0,0,10);
+	this.graphics.beginStroke("black").beginFill("red").drawCircle(0,0,8);
 	stage.addChild(this);
 	sList.push(this);
 }
@@ -194,10 +198,11 @@ var migrateOnce = function(speed){
 	var totalMovement = speed;
 
 	if (this.destinationX != null){
-			if (Math.abs(this.destinationX - this.x) > 20 ||
-				Math.abs(this.destinationY - this.y) > 20){
+		if (Math.abs(this.destinationX - this.x) > 5 ||
+			Math.abs(this.destinationY - this.y) > 5){
 			// flipped accounts for problems with arctan's range only being -pi/2 to pi/2
 			// either 1 (atan works) or -1 (atan doesn't work)
+			//console.log("cleared MO CHKPT2");
 			var flipped = 1;
 			var destX = this.destinationX;
 			var destY = this.destinationY;
@@ -208,9 +213,11 @@ var migrateOnce = function(speed){
 			
 			this.x += flipped*totalMovement*Math.cos(angle);
 			this.y += flipped*totalMovement*Math.sin(angle);
+		} else {
+			this.destinationX = null;
+			sight.alpha = 0;
+			popAdjuster.alpha = 0;
 		}
-	} else {
-		this.destinationX = null;
 	}
 }
 
