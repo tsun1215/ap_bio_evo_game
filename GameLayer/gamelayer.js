@@ -30,6 +30,7 @@ function initScreen() {
 function refresh() {
 	for(i in sList) {
 		sList[i].migrateOnce();
+		sList[i].survival();
 	}
 	stage.update();
 }
@@ -103,7 +104,7 @@ function mouseHandler(event){
 	// 	});
 	// }
 }
-function Settlement(pop, xCoord, yCoord, map) {
+function Settlement(pop, xCoord, yCoord, map,idealT,tempResist) {
 	this.population = pop;
 	this.movingPop;
 	this.x = xCoord;
@@ -121,9 +122,13 @@ function Settlement(pop, xCoord, yCoord, map) {
 	sList.push(this);
 }
 
-function createMigrater(destX, destY){
-	var settle = new settlement 
+
+Settlement.prototype.survival = function(map){
+	var netGrowth = (this.tempResist - Math.abs(Math.floor((this.map.tiles[this.xCoord / 16][this.yCoord / 16].temperature) * 100))) / this.tempResist;
+	var newPop = netGrowth * interval + this.population;
+	this.population = newPop;
 }
+
 var migrateOnce = function(){
 	var totalMovement = 10;
 
