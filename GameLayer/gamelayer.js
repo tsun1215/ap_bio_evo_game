@@ -2,25 +2,35 @@ var sList;
 var stage;
 var interval = 25;
 var focus;
-var lockmap = false;
+var focus = null;
+var sight;
+var popAdjuster;
+var popText;
 
 Settlement.prototype = new createjs.Shape();
 Settlement.prototype.constructor = Settlement;
 
 function initGame() {
 	stage = new createjs.Stage("screen");
+	stage.enableMouseOver(10);
+	console.log("chkpt 1");
+	console.log("chkpt 2");
 	sList = new Array();
 	initmap();
 	new Settlement(100,5,5);
 	new Settlement(200,10,20);
 	new Settlement(200,100,200);
 	initScreen();
+	initSight();
+	initPopAdjuster();
 }
 
 function initmap(){
-	var mapArr = new Map(100,100,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+	var mapArr = new Map(200,150,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
 	mapArr.generate();
 	map = new createjs.Container();
+	map.x = -(mapArr.cols*mapArr.tile_width)/2;
+	map.y = -(mapArr.rows*mapArr.tile_width)/2;
 	stage.addChild(map);
 	for(var i = 0; i<mapArr.rows; i++)
 	{
@@ -84,7 +94,18 @@ function initScreen() {
 			case 'd':
 				stage.x+=5;
 				break;
+			case 'q':
+				if(focus.movingPop > 0) {
+					focus.movingPop-=10
+				}; 
+				break;
+			case 'e':
+				if(focus.movingPop < focus.population) {
+					focus.movingPop+=10
+				}; 
+				break;
 		}
+		updatePopAdjuster()
 	};
 }
 
@@ -96,63 +117,87 @@ function refresh(event) {
 }
 
 function mouseHandler(event){
+	console.log("SOME EVENT HAPPENED");
 	if (event.type == "click"){
-		focus = event.target;
-		focus.showPopAdjuster();
-		event.addEventListener("mouseWheel", function (evt){
-			var zoom;
-			if(Math.max(-1, Math.min(1, (evt.wheelDelta || -evt.detail)))>0){
-				zoom=1;
-			}else{
-				zoom=-1;
-			}
-			if (focus.movingPop + zoom < 0){
-				if (focus.movingPop + zoom < focus.population){
-					focus.movingPop = focus.movingPop + zoom;
+		console.log(sight.x);
+		if (focus != null){
+			console.log("Secondclicked");
+			console.log(focus.movingPop);
+			if (focus.movingPop > 0){
+				console.log("focus.movingPop > 0");
+				var loc = stage.globalToLocal(event.stageX, event.stageY);
+				if (focus.movingPop < focus.population){	
+					var settle = new Settlement(focus.movingPop, focus.x, focus.y, focus.map);
+					settle.destinationX = loc.x;
+					settle.destinationY = loc.y;
+					focus.population = focus.population - focus.movingPop;
+					focus = null;
 				} else {
-					focus.movingPop = focus.population;
-				}
-				
-			} else {
-				focus.movinPop = 0;
+					focus.destinationX = loc.x;
+					focus.destinationY = loc.y;
+				} 
 			}
-			
-			evt.addEventListener("click", function (ev){
-
-			});
-		});
-	}
-	if (event.type == "mousedown"){
-		event.nativeEvent.preventDefault();
-		focus = event.target;
-		lockmap = true;
-		event.addEventListener("mouseup", function(evt) {
-			var loc = stage.globalToLocal(evt.stageX, evt.stageY);
-			focus.destinationX = loc.x;
-			focus.destinationY = loc.y;
+			sight.alpha = 0;
+			popAdjuster.alpha = 0;
+			console.log("focus.movingPop");
 			focus = null;
-		});
+			stage.removeEventListener('stagemousemove', stageEventHandler);
+
+		} else {
+			focus = event.target;
+			console.log(focus);
+			aimSight(event.stageX, event.stageY);
+			sight.alpha = .5;
+			popAdjuster.alpha = 1;
+			console.log("first clicked");
+			console.log("added mouse stuff to stage");
+			console.log(focus);
+			stage.addEventListener("stagemousemove", stageEventHandler);
+		}
 	}
 }
-function Settlement(pop, xCoord, yCoord, mapArr) {
+
+function stageEventHandler(event){
+	console.log("stageevent called");
+	if (event.type == "stagemousemove"){
+		var loc = stage.globalToLocal(event.stageX, event.stageY);
+		aimSight(loc.x, loc.y);
+		aimPopAdjuster();
+		updatePopAdjuster();
+
+	}	
+}
+
+function Settlement(pop, xCoord, yCoord, map,idealT,tempResist) {
 	this.population = pop;
+	this.movingPop = 0;
 	this.x = xCoord;
 	this.y = yCoord;
-	this.destination;
+	this.destinationX;
+	this.destinationY;
 	this.speed;
+	this.movingPop;
 	this.migrateOnce = migrateOnce;
-	this.addEventListener("mousedown", mouseHandler);
+	this.addEventListener("click", mouseHandler);
 	this.graphics.beginFill("red").drawCircle(0,0,10);
 	stage.addChild(this);
 	sList.push(this);
 }
 
+Settlement.prototype.survival = function(map){
+	var netGrowth = (this.tempResist - Math.abs(Math.floor((this.map.tiles[this.xCoord / 16][this.yCoord / 16].temperature) * 100))) / this.tempResist;
+	var newPop = netGrowth * interval + this.population;
+	this.population = newPop;
+}
 
 var migrateOnce = function(speed){
 	var totalMovement = speed;
 
 	if (this.destinationX != null){
-		if (Math.abs(this.destinationX - this.x) > 20 || Math.abs(this.destinationY - this.y) > 20){
+			if (Math.abs(this.destinationX - this.x) > 20 ||
+				Math.abs(this.destinationY - this.y) > 20){
+			// flipped accounts for problems with arctan's range only being -pi/2 to pi/2
+			// either 1 (atan works) or -1 (atan doesn't work)
 			var flipped = 1;
 			var destX = this.destinationX;
 			var destY = this.destinationY;
@@ -160,14 +205,61 @@ var migrateOnce = function(speed){
 			if (destX - this.x < 0){
 				flipped = -1;
 			}
-
+			
 			this.x += flipped*totalMovement*Math.cos(angle);
 			this.y += flipped*totalMovement*Math.sin(angle);
 		}
+	} else {
+		this.destinationX = null;
 	}
 }
+
+
 
 var Loc = function(xCoord, yCoord){
 	var x;
 	var y;
+}
+
+function initSight() {
+	sight = new createjs.Shape();
+	sight.graphics.beginFill("blue").drawCircle(0,0,10);
+	stage.addChild(sight);
+	sight.addEventListener("click", mouseHandler);
+}
+
+function aimSight(xCoords, yCoords) {
+	sight.x = xCoords;
+	sight.y = yCoords;
+	stage.update();
+}
+
+
+function initPopAdjuster() {
+	var popFrame = new createjs.Shape();
+	popFrame.graphics.beginFill("black").drawRoundRect(-25,-50,50,30,5);
+	popText = new createjs.Text();
+	popAdjuster = new createjs.Container();
+	popAdjuster.addChild(popFrame);
+	stage.addChild(popAdjuster, popText);
+}
+
+function aimPopAdjuster() {
+	if(focus != null) {
+		popAdjuster.x = sight.x;
+		popAdjuster.y = sight.y;
+		stage.update();
+	}
+}
+
+function updatePopAdjuster(){
+	if (focus != null){
+		stage.removeChild(popAdjuster);
+		popAdjuster.removeChild(popText);
+		popText = new createjs.Text(focus.movingPop, "20px Arial", "white");
+		popText.x = -13;
+		popText.y = -46;
+		popAdjuster.addChild(popText);
+		stage.addChild(popAdjuster);
+	}
 }
