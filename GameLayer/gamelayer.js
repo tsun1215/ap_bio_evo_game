@@ -16,8 +16,9 @@ function initGame() {
 	console.log("chkpt 1");
 	console.log("chkpt 2");
 	sList = new Array();
-	initmap();
+	//initmap();
 	new Settlement(200,100,200);
+	new Settlement(100,200,200);
 	initScreen();
 	initSight();
 	initPopAdjuster();
@@ -110,7 +111,9 @@ function initScreen() {
 function refresh(event) {
 	for(i in sList) {
 		sList[i].migrateOnce(event.delta/10);
-		sList[i].updatePopTag();
+		if(sList[i] != null) {
+			sList[i].updatePopTag();
+		}
 	}
 	stage.update(event);
 }
@@ -142,10 +145,10 @@ function mouseHandler(event){
 			// sight.alpha = 0;
 			// popAdjuster.alpha = 0;
 			focus.movingPop = focus.population;
+			focus.checkMerge(event.stageX, event.stageY);
 			focus = null;
 			// stage.removeEventListener('click', stageEventHandler);
 			stage.removeEventListener('stagemousemove', stageEventHandler);
-
 		} else {
 			focus = event.target;
 			console.log(focus);
@@ -225,6 +228,7 @@ Settlement.prototype.migrateOnce = function(speed){
 			sight.alpha = 0;
 			popAdjuster.alpha = 0;
 		}
+		this.checkMergeHelper();
 	}
 }
 
@@ -295,4 +299,44 @@ Settlement.prototype.updatePopTag = function() {
 	this.tagText.y = 0;
 	this.popTag.addChild(this.tagText);
 	stage.addChild(this.popTag);
+}
+
+Settlement.prototype.checkMerge = function(xCoord, yCoord) {
+	var index = sList.indexOf(this);
+	var mergeSett;
+	for(i in sList) {
+		if(Math.sqrt(Math.pow(xCoord - sList[i].x,2) + Math.pow(yCoord - sList[i].y,2)) <= 8) {
+			if(i != index){this.mergeSett = sList[i];}
+		}
+	}
+}
+
+Settlement.prototype.checkMergeHelper = function() {
+	if (this.mergeSett != null) {
+		if(Math.abs(this.x - this.mergeSett.x) < 8 && Math.abs(this.y - this.mergeSett.y) < 8) {
+			this.population += this.mergeSett.population;
+			this.movingPop = this.population;
+			stage.removeChild(this.mergeSett);
+			stage.removeChild(this.mergeSett.popTag);
+			sList.splice(sList.indexOf(this.mergeSett), 1);
+			this.mergeSett = null;
+		}
+	}
+}
+
+function getSettByArea(xCenter, yCenter, radius) {
+	for(i in sList) {
+		if(Math.sqrt(Math.pow(xCenter - sList[i].x,2) + Math.pow(yCenter - sList[i].y,2)) <= radius) {
+			return sList[i];
+		}
+	}
+	return null;
+}
+
+function getSettByCoords(xCoord, yCoord) {
+	for(i in sList) {
+		if(sList[i].x == xCoord && sList[i].y == yCoord)
+			return sList[i];
+	}
+	return null;
 }
