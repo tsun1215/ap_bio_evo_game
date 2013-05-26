@@ -61,8 +61,6 @@ function Settlement() {
 }
 
 
-
-
 var migrateOnce = function(fpsDelta){
 	if (this.destination != null){
 		// flipped accounts for problems with arctan's range only being -pi/2 to pi/2
@@ -79,11 +77,6 @@ var migrateOnce = function(fpsDelta){
 		this.y += flipped*totalMovement*Math.sin(angle);
 	}
 }
-
-var draw = function(){
-	this.shape.graphics.beginFill("blue").drawCircle(this.x, this.y, this.population/50);
-}
-
 
 var Loc = function(xCoord, yCoord){
 	var x;
