@@ -16,7 +16,7 @@ function initGame() {
 	console.log("chkpt 1");
 	console.log("chkpt 2");
 	sList = new Array();
-	//initmap();
+	initmap();
 	new Settlement(200,100,200);
 	new Settlement(100,200,200);
 	initScreen();
