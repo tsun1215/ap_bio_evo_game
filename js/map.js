@@ -30,9 +30,12 @@ Map.prototype.generatePerlin = function(v)
 		this.tiles[i] = new Array(this.cols);
 		for(var j = 0; j<this.cols; j++)
 		{
-			var temp = PerlinNoise.noise( i/20, j/20, seeds[0]);
-			var water = PerlinNoise.noise( i/20, j/20, seeds[1]);
-			var nut = PerlinNoise.noise( i/20, j/20, seeds[2]);
+			var si = i/this.rows * 3.5;
+			var sj = j/this.cols * 3.5;
+			//console.log(si);
+			var temp = PerlinNoise.noise( si, sj, seeds[0]);
+			var water = PerlinNoise.noise( si, sj, seeds[1]);
+			var nut = PerlinNoise.noise( si, sj, seeds[2]);
 			this.tiles[i][j] = new Tile({temperature:temp, water: water, nutrients:nut});
 		}
 	}
