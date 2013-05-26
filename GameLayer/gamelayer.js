@@ -6,6 +6,10 @@ var focus = null;
 var sight;
 var popAdjuster;
 var popText;
+var uiStage;
+var currentPop;
+var currentName;
+var resist;
 var mapArr;
 
 Settlement.prototype = new createjs.Shape();
@@ -13,10 +17,12 @@ Settlement.prototype.constructor = Settlement;
 
 function initGame() {
 	stage = new createjs.Stage("screen");
+	uiStage = new createjs.Stage("uiStage");
 	stage.enableMouseOver(10);
 	console.log("chkpt 1");
 	console.log("chkpt 2");
 	sList = new Array();
+	initUI();
 	initmap();
 	new Settlement(200,100,200, mapArr);
 	initScreen();
@@ -73,6 +79,10 @@ function initmap(){
 		}
 		map.cache(0,0,mapArr.rows*mapArr.tile_width,mapArr.cols*mapArr.tile_width);
 	}
+	// var minimap = map.clone();
+	// minimap.scaleX = .7;
+	// minimap.scaleY = .7;
+	// contentcontainer.children[0].addChild(minimap);
 	stage.update();
 }
 
@@ -151,10 +161,12 @@ function MouseWheelHandler(e) {
 	}else{
 		if(e.wheelDelta != 0)
 		{
+			var loc = stage.globalToLocal(e.clientX, e.clientY);
+			console.log(loc);
 			if(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))>0){
-				var zoom = 1.1/1;
+				var zoom = 1.05/1;
 			}else{
-				var zoom=1/1.1;
+				var zoom=1/1.05;
 			}
 			stage.scaleX *= zoom;
 			stage.scaleY *= zoom;
@@ -175,6 +187,7 @@ function refresh(event) {
 		}
 	}
 	stage.update(event);
+	uiStage.update(event);
 }
 
 // function survive(event) {
@@ -223,6 +236,20 @@ function mouseHandler(event){
 			//console.log(sight.alpha);
 			//console.log("first clicked");
 			//console.log(focus);
+			currentName = new createjs.Text("Current Population", "24px Arial", "#000");
+			currentName.x = 175;
+			currentName.y = 10;
+			contentcontainer.children[1].addChild(currentName);
+
+			currentPop = new createjs.Text("Population size: " + focus.population, "12px Arial", "#000");
+			currentPop.x = 10;
+			currentPop.y =50;
+			contentcontainer.children[1].addChild(currentPop);
+
+			resist = new createjs.Text("Temperature resistance: " + focus.traits.list[0], "12px Arial", "#000");
+			resist.x = 10;
+			resist.y = 100;
+			contentcontainer.children[1].addChild(resist);
 			stage.addEventListener("stagemousemove", stageEventHandler);
 		}
 	}
@@ -449,8 +476,10 @@ Settlement.prototype.updatePopTag = function() {
 Settlement.prototype.checkMerge = function(xCoord, yCoord) {
 	var index = sList.indexOf(this);
 	var mergeSett;
+	var set_loc = stage.globalToLocal(xCoord, yCoord);
 	for(i in sList) {
-		if(Math.sqrt(Math.pow(xCoord - sList[i].x,2) + Math.pow(yCoord - sList[i].y,2)) <= 8) {
+		var dest_loc = stage.localToLocal(set_loc.x, set_loc.y, sList[i])
+		if(sList[i].hitTest(dest_loc.x, dest_loc.y)) {
 			if(i != index){this.mergeSett = sList[i];}
 		}
 	}
