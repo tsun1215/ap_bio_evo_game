@@ -43,12 +43,15 @@ var Settlement = function(pop, xCoord, yCoord) {
 	this.speed = 1;
 	this.x = xCoord;
 	this.y = yCoord;
-	this.shape = new createjs.Shape();
+	this.shape = new Circle(this.x, this.y);
 
 }
 
-var Circle = function() {
-
+var Circle = function(xCoord, yCoord) {
+	var shape = new createjs.Shape();
+	shape.graphics.beginFill("red").drawCircle(0,0,10);
+	shape.x = xCoord;
+	shape.y = yCoord;
 }
 
 var migrateOnce = function(fpsDelta){
