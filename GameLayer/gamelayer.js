@@ -1,6 +1,7 @@
 var sList;
 var stage;
 var interval = 25;
+var focus;
 var focus = null;
 var sight;
 var popAdjuster;
@@ -15,48 +16,104 @@ function initGame() {
 	console.log("chkpt 1");
 	console.log("chkpt 2");
 	sList = new Array();
+	initmap();
 	new Settlement(100,5,5);
 	new Settlement(200,10,20);
 	new Settlement(200,100,200);
-	// stage.addEventListener("click", function(evt){
-	// 	console.log("clickedonstage");
-	// 	console.log(evt.stageX);
-	// 	console.log(evt.stageY);
-	// });
-initScreen();
-initSight();
-initPopAdjuster();
+	initScreen();
+	initSight();
+	initPopAdjuster();
+}
+
+function initmap(){
+	var mapArr = new Map(200,150,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+	mapArr.generate();
+	map = new createjs.Container();
+	map.x = -(mapArr.cols*mapArr.tile_width)/2;
+	map.y = -(mapArr.rows*mapArr.tile_width)/2;
+	stage.addChild(map);
+	for(var i = 0; i<mapArr.rows; i++)
+	{
+		for(var j=0; j<mapArr.cols; j++)
+		{
+			var temp = Math.floor(mapArr.tiles[i][j].attributes.temperature * 255);
+			var water = Math.floor(mapArr.tiles[i][j].attributes.water * 255);
+			var nut = Math.floor(mapArr.tiles[i][j].attributes.nutrients * 255);
+			var color;
+			if(water > 150)
+			{
+				var newwater = 255-water;
+				newwater += 1.24;
+				newwater *= 1.6;
+				newwater = Math.floor(newwater);
+				color = rgbToHex(0,0,newwater);
+			}
+			else if(water > 140)
+			{
+				color = rgbToHex(255,255,nut);
+			}
+			else if(water > 70)
+			{
+				color = rgbToHex(10,nut,10);
+			}
+			else
+			{
+				color = rgbToHex(255,255,nut);
+			}
+			if ( water > 100 && water < 120 && temp < 100)
+			{
+				var newwater = Math.floor(2 * (255-water));
+				newwater = (newwater >255 ? 255: newwater);
+				color = rgbToHex(newwater,newwater,newwater);
+			}
+			var pixel = new createjs.Shape();
+			pixel.graphics.beginFill(color).drawRect(i*mapArr.tile_width,j*mapArr.tile_width,mapArr.tile_width,mapArr.tile_width);
+			map.addChild(pixel);
+		}
+		map.cache(0,0,mapArr.rows*mapArr.tile_width,mapArr.cols*mapArr.tile_width);
+	}
+	stage.update();
 }
 
 function initScreen() {
-	document.onkeydown = handleKeyDown;
-
 	createjs.Ticker.addEventListener("tick", refresh);
-	createjs.Ticker.setInterval(interval);
-	// stage.addEventListener("click", function(evt){
-	// 	console.log("clicked on stage");
-	// 	console.log(evt.stageX);
-	// });
-}
-
-function handleKeyDown(e) {
-	console.log("key was detected");
-	if(focus != null) {
-		switch(e.keyCode) {
-		case 65: if(focus.movingPop > 0) {focus.movingPop-=10}; break; //A Key
-		case 68: if(focus.movingPop < focus.population) {focus.movingPop+=10}; break; //D Key
+	createjs.Ticker.setFPS(30);
+	document.onkeypress = function(e) {
+		e = e || window.event;
+		var charCode = (typeof e.which == "number") ? e.which : e.keyCode;
+		switch(String.fromCharCode(charCode)){
+			case 'w':
+				stage.y-=5;
+				break;
+			case 'a':
+				stage.x-=5;
+				break;
+			case 's':
+				stage.y+=5;
+				break;
+			case 'd':
+				stage.x+=5;
+				break;
+			case 'q':
+				if(focus.movingPop > 0) {
+					focus.movingPop-=10
+				}; 
+				break;
+			case 'e':
+				if(focus.movingPop < focus.population) {
+					focus.movingPop+=10
+				}; 
+				break;
 		}
-		console.log(focus.movingPop);
 		updatePopAdjuster()
-	}
+	};
 }
 
-function refresh() {
+function refresh(event) {
 	for(i in sList) {
-		sList[i].migrateOnce();
-		// sList[i].survival();
+		sList[i].migrateOnce(event.delta/10);
 	}
-	stage.update();
+	stage.update(event);
 }
 
 function mouseHandler(event){
@@ -69,14 +126,15 @@ function mouseHandler(event){
 			console.log(sight.alpha);
 			if (focus.movingPop > 0){
 				console.log("focus.movingPop > 0");
+				var loc = stage.globalToLocal(event.stageX, event.stageY);
 				if (focus.movingPop < focus.population){	
 					var settle = new Settlement(focus.movingPop, focus.x, focus.y, focus.map);
-					settle.destinationX = event.stageX;
-					settle.destinationY = event.stageY;
+					settle.destinationX = loc.x;
+					settle.destinationY = loc.y;
 					focus.population = focus.population - focus.movingPop;
 				} else {
-					focus.destinationX = event.stageX;
-					focus.destinationY = event.stageY;
+					focus.destinationX = loc.x;
+					focus.destinationY = loc.y;
 				} 
 			} else {
 				sight.alpha = 0;
@@ -85,12 +143,9 @@ function mouseHandler(event){
 			// sight.alpha = 0;
 			// popAdjuster.alpha = 0;
 			focus.movingPop = focus.population;
-			console.log("focus.movingPop");
 			focus = null;
-			console.log(focus);
 			// stage.removeEventListener('click', stageEventHandler);
 			stage.removeEventListener('stagemousemove', stageEventHandler);
-			// stage.removeEventListener('mouseWheel', stageEventHandler);	
 
 		} else {
 			focus = event.target;
@@ -102,166 +157,19 @@ function mouseHandler(event){
 			console.log("first clicked");
 			console.log(focus);
 			stage.addEventListener("stagemousemove", stageEventHandler);
-			// stage.addEventListener("mouseWheel", stageEventHandler);
 		}
 	}
-	// if (event.type == "stagemousemove"){
-	// 	console.log("called mousemove");
-	// 	aimSight(event.stageX, event.stageY);
-	// 	aimPopAdjuster();
-
-	// }	
-	// event.addEventListener("click", function (ev){
-	// 		console.log("secondclicked");
-	// 		if (ev.type == "click"){
-	// 			console.log("mouse was clicked a second time");
-	// 			if (focus.movingPop > 0){
-
-	// 			if (focus.movingPop < focus.population){	
-	// 				var settle = new Settlement(focus.movingPop, focus.x, focus.y, focus.map);
-	// 				settle.destinationX = ev.stageX;
-	// 				settle.destinationY = ev.stageY;
-	// 				focus.population = focus.population - movingPop;
-	// 				focus = null;
-	// 			} else {
-	// 				focus.destinationX = ev.stageX;
-	// 				focus.destinationY = ev.stageY;
-	// 				}
-	// 			} 
-	// 			sight.alpha = 0;
-	// 			popAdjuster.alpha = 0;
-	// 			console.log("secondclicked1");
-	// 		}	
-	//});
-// if (event.type == "mousewheel"){
-// 	console.log("mousewheeled");
-// 	var zoom;
-// 	if(Math.max(-1, Math.min(1, (event.WheelDelta || -event.detail)))>0){
-// 		zoom=1;
-// 	}else{
-// 		zoom=-1;
-// 	}
-// 	if (focus.movingPop + zoom > 0){
-// 		if (focus.movingPop + zoom < focus.population){
-// 			focus.movingPop = focus.movingPop + zoom;
-// 		} else {
-// 			focus.movingPop = focus.population;
-// 		} 
-// 	} else {
-// 		focus.movingPop = 0;
-// 	}
-// }
-	// 	event.addEventListener("mousemove", function (ev){
-	// 		aimSight(ev.stageX, ev.stageY);
-	// 		aimPopAdjuster();
-	// 	})
-	// 	event.addEventListener("click", function (ev){
-	// 		if (ev.type == "click"){
-	// 			console.log("mouse was clicked a second time");
-	// 			if (focus.movingPop > 0){
-
-	// 			if (focus.movingPop < focus.population){	
-	// 				var settle = new Settlesment(focus.movingPop, focus.x, focus.y, focus.map);
-	// 				settle.destinationX = ev.stageX;
-	// 				settle.destinationY = ev.stageY;
-	// 				focus.population = focus.population - movingPop;
-	// 				focus = null;
-	// 			} else {
-	// 				focus.destinationX = ev.stageX;
-	// 				focus.destinationY = ev.stageY;
-	// 				}
-	// 			} 
-	// 			sight.isVisible = false;
-	// 		}	
-	// 	});
-
-	// }
-	// if (event.type == "mousedown"){
-	// 	console.log("mousedown");
-	// 	focus = event.target;
-	// 	event.addEventListener("mouseup", function(evt) {
-	// 		console.log("mouseup");
-	// 		focus.destinationX = evt.stageX;
-	// 		focus.destinationY = evt.stageY;
-	// 		console.log(evt.stageX);
-	// 		console.log(focus.destinationX);
-	// 		focus = null;
-	// 	});
-	// }
 }
-// function wheelHandler(event){
-// 	console.log("wheelhandler called");
-// 	if(focus != null){
-// 		if (event.type == "mousewheel"){
-// 			console.log("mousewheeled");
-// 			var zoom;
-// 			if(Math.max(-1, Math.min(1, (event.WheelDelta || -event.detail)))>0){
-// 				zoom=1;
-// 			}else{
-// 				zoom=-1;
-// 			}
-// 			if (focus.movingPop + zoom > 0){
-// 				if (focus.movingPop + zoom < focus.population){
-// 					focus.movingPop = focus.movingPop + zoom;
-// 				} else {
-// 					focus.movingPop = focus.population;
-// 				}
-// 			} else {
-// 				focus.movinPop = 0;
-// 			}
-// 		}
-// 	}
-// }
+
 function stageEventHandler(event){
 	console.log("stageevent called");
-	// if (event.type == "mousewheel"){
-	// 	console.log("mousewheeled");
-	// 	var zoom;
-	// 	if(Math.max(-1, Math.min(1, (event.WheelDelta || -event.detail)))>0){
-	// 		zoom=1;
-	// 	}else{
-	// 		zoom=-1;
-	// 	}
-	// 	if (focus.movingPop + zoom < 0){
-	// 		if (focus.movingPop + zoom < focus.population){
-	// 			focus.movingPop = focus.movingPop + zoom;
-	// 		} else {
-	// 			focus.movingPop = focus.population;
-	// 		}
-
-	// 	} else {
-	// 		focus.movinPop = 0;
-	// 	}
-	// }
 	if (event.type == "stagemousemove"){
-		aimSight(event.stageX, event.stageY);
+		var loc = stage.globalToLocal(event.stageX, event.stageY);
+		aimSight(loc.x, loc.y);
 		aimPopAdjuster();
 		updatePopAdjuster();
 
 	}	
-	// if (event.type == "click"){
-	// 	if (focus != null){
-	// 		console.log("Secondclicked");
-	// 		if (focus.movingPop > 0){
-	// 			if (focus.movingPop < focus.population){	
-	// 				var settle = new Settlement(focus.movingPop, focus.x, focus.y, focus.map);
-	// 				settle.destinationX = ev.stageX;
-	// 				settle.destinationY = ev.stageY;
-	// 				focus.population = focus.population - movingPop;
-	// 				focus = null;
-	// 			} else {
-	// 				focus.destinationX = ev.stageX;
-	// 				focus.destinationY = ev.stageY;
-	// 			} 
-	// 			sight.alpha = 0;
-	// 			popAdjuster.alpha = 0;
-	// 		}
-	// 		focus = null;
-	// 		stage.removeEventListener('click', stageEventHandler);
-	// 		stage.removeEventListener('stagemousemove', stageEventHandler);
-	// 		stage.removeEventListener('mousewheel', stageEventHandler);	
-	// 	} 
-	// }
 }
 
 function Settlement(pop, xCoord, yCoord, map,idealT,tempResist) {
@@ -275,8 +183,6 @@ function Settlement(pop, xCoord, yCoord, map,idealT,tempResist) {
 	this.movingPop;
 	this.migrateOnce = migrateOnce;
 	this.addEventListener("click", mouseHandler);
-	// this.addEventListener("mouseWheel", mouseHandler);
-	// this.addEventListener("stagemousemove", mouseHandler);
 	this.graphics.beginStroke("black").beginFill("red").drawCircle(0,0,8);
 	stage.addChild(this);
 	sList.push(this);
@@ -288,38 +194,31 @@ Settlement.prototype.survival = function(map){
 	this.population = newPop;
 }
 
-var migrateOnce = function(){
-	var totalMovement = 10;
+var migrateOnce = function(speed){
+	var totalMovement = speed;
 
 	if (this.destinationX != null){
-		// console.log("cleared MO CKPT 1");
-		// console.log(this.destinationX);
-		// console.log(this.x);
 		if (Math.abs(this.destinationX - this.x) > 5 ||
 			Math.abs(this.destinationY - this.y) > 5){
-		// flipped accounts for problems with arctan's range only being -pi/2 to pi/2
-		// either 1 (atan works) or -1 (atan doesn't work)
-		//console.log("cleared MO CHKPT2");
-		var flipped = 1;
-		var destX = this.destinationX;
-		var destY = this.destinationY;
-		//console.log(" migrateOnce stuffs" + this.x);
-		//console.log(this.y);
-		var angle = Math.atan((destY-this.y)/(destX-this.x));
-		if (destX - this.x < 0){
-			flipped = -1;
-		}
-		
-		this.x += flipped*totalMovement*Math.cos(angle);
-		this.y += flipped*totalMovement*Math.sin(angle);
-	} else {
+			// flipped accounts for problems with arctan's range only being -pi/2 to pi/2
+			// either 1 (atan works) or -1 (atan doesn't work)
+			//console.log("cleared MO CHKPT2");
+			var flipped = 1;
+			var destX = this.destinationX;
+			var destY = this.destinationY;
+			var angle = Math.atan((destY-this.y)/(destX-this.x));
+			if (destX - this.x < 0){
+				flipped = -1;
+			}
+			
+			this.x += flipped*totalMovement*Math.cos(angle);
+			this.y += flipped*totalMovement*Math.sin(angle);
+		} else {
 			this.destinationX = null;
 			sight.alpha = 0;
 			popAdjuster.alpha = 0;
+		}
 	}
-} else {
-	this.destinationX = null;
-}
 }
 
 
@@ -334,8 +233,6 @@ function initSight() {
 	sight.graphics.beginFill("blue").drawCircle(0,0,9);
 	stage.addChild(sight);
 	sight.addEventListener("click", mouseHandler);
-	// sight.addEventListener("stagemousemove", mouseHandler);
-	// sight.addEventListener("mousewheel", wheelHandler);
 }
 
 function aimSight(xCoords, yCoords) {

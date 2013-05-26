@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="js/map.js"></script>
+	<script src="js/perlin.js"></script>
+	<style>
+		*
+		{
+			padding:0;
+			margin:0;
+		}
+	</style>
+    <script>
+	var map,ctx,canvas;
+	var timer;
+	var x = 0;
+	function init()
+	{
+		var start = + new Date();
+		map = new Map(800,600,1,[Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+		map.generatePerlin();
+		var canvas = document.getElementById('mien');
+		ctx = canvas.getContext('2d');
+		canvas.width = (map.rows * map.tile_width);
+		canvas.height = (map.cols * map.tile_width);
+		var stop = + new Date();
+		timer = stop-start;
+		paint();
+	}
+	
+	function paint()
+	{
+		for(var i = 0; i<map.rows; i++)
+			{
+				for(var j=0; j<map.cols; j++)
+				{
+					var temp = Math.floor(map.tiles[i][j].attributes.temperature * 255);
+					var water = Math.floor(map.tiles[i][j].attributes.water * 255);
+					var nut = Math.floor(map.tiles[i][j].attributes.nutrients * 255);
+					if(water > 150)
+					{
+						//0 - 105
+						var newwater = 255-water;
+						newwater += 1.24;
+						newwater *= 1.6;
+						newwater = Math.floor(newwater);
+						ctx.fillStyle = rgbToHex(0,0,newwater);
+					}
+					else if(water > 140)
+					{
+						ctx.fillStyle = rgbToHex(255,255,nut);
+					}
+					else if(water > 70)
+					{
+						ctx.fillStyle = rgbToHex(10,nut,10);
+					}
+					else
+					{
+						ctx.fillStyle = rgbToHex(255,255,nut);
+					}
+					if ( water > 100 && water < 120 && temp < 100)
+					{
+						var newwater = Math.floor(2 * (255-water));
+						newwater = (newwater >255 ? 255: newwater);
+						ctx.fillStyle = rgbToHex(newwater,newwater,newwater);
+					}
+					ctx.fillRect(i*map.tile_width,j*map.tile_width,map.tile_width,map.tile_width);
+				}
+			}
+	}
+
+    </script>
+</head>
+<body onLoad="init();">
+<canvas id="mien"  width="1000px" height="1000">
+</canvas>
+<!--<input onmouseup="document.getElementById('value').innerHTML = this.value;map.generatePerlin(10000,this.value);paint();" style="width:900px" type="range" name="range" min="0" step=".01" value="0" max="5">
+<div id="value"></div>-->
+</body>
+</html>
