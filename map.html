@@ -17,8 +17,8 @@
 	function init()
 	{
 		var start = + new Date();
-		map = new Map(500,500,1);
-		map.generatePerlin(10000);
+		map = new Map(800,600,1,[Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+		map.generatePerlin();
 		var canvas = document.getElementById('mien');
 		ctx = canvas.getContext('2d');
 		canvas.width = (map.rows * map.tile_width);
