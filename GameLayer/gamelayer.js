@@ -41,15 +41,16 @@ var Settlement = function(pop, xCoord, yCoord) {
 	this.population = pop;
 	this.destination = null;
 	this.speed = 1;
-	this.x = xCoord;
-	this.y = yCoord;
-	this.shape = new Image(this.x, this.y);
+	this.shape = new Sprite(xCoord, yCoord, 10);
+	this.getX = function() {return this.shape.x;}
+	this.getY = function() {return this.shape.y}
+
 
 }
 
-var Image = function(xCoord, yCoord) {
+var Sprite = function(xCoord, yCoord, radius) {
 	var shape = new createjs.Shape();
-	shape.graphics.beginFill("red").drawCircle(0,0,10);
+	shape.graphics.beginFill("red").drawCircle(-radius,-radius,radius);
 	shape.x = xCoord;
 	shape.y = yCoord;
 }
