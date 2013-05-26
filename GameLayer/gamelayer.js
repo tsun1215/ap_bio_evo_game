@@ -24,7 +24,7 @@ function initGame() {
 }
 
 function initmap(){
-	var mapArr = new Map(200,200,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+	var mapArr = new Map(100,100,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
 	mapArr.generate();
 	map = new createjs.Container();
 	//map.x = -(mapArr.cols*mapArr.tile_width)/2;
@@ -150,10 +150,12 @@ function MouseWheelHandler(e) {
 	}else{
 		if(e.wheelDelta != 0)
 		{
+			var loc = stage.globalToLocal(e.clientX, e.clientY);
+			console.log(loc);
 			if(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))>0){
-				var zoom = 1.1/1;
+				var zoom = 1.05/1;
 			}else{
-				var zoom=1/1.1;
+				var zoom=1/1.05;
 			}
 			stage.scaleX *= zoom;
 			stage.scaleY *= zoom;
