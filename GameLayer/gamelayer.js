@@ -26,11 +26,11 @@ function initGame() {
 }
 
 function initmap(){
-	var mapArr = new Map(200,150,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+	var mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
 	mapArr.generate();
 	map = new createjs.Container();
-	map.x = -(mapArr.cols*mapArr.tile_width)/2;
-	map.y = -(mapArr.rows*mapArr.tile_width)/2;
+	//map.x = -(mapArr.cols*mapArr.tile_width)/2;
+	//map.y = -(mapArr.rows*mapArr.tile_width)/2;
 	stage.addChild(map);
 	for(var i = 0; i<mapArr.rows; i++)
 	{
@@ -67,7 +67,9 @@ function initmap(){
 				color = rgbToHex(newwater,newwater,newwater);
 			}
 			var pixel = new createjs.Shape();
-			pixel.graphics.beginFill(color).drawRect(i*mapArr.tile_width,j*mapArr.tile_width,mapArr.tile_width,mapArr.tile_width);
+			pixel.graphics.beginFill(color).drawRect(0,0,mapArr.tile_width,mapArr.tile_width);
+			pixel.x = i*mapArr.tile_width;
+			pixel.y = j*mapArr.tile_width;
 			map.addChild(pixel);
 		}
 		map.cache(0,0,mapArr.rows*mapArr.tile_width,mapArr.cols*mapArr.tile_width);
@@ -107,6 +109,48 @@ function initScreen() {
 		}
 		updatePopAdjuster()
 	};
+	stage.canvas.addEventListener("contextmenu",function(e) {
+		  if (e.button === 2) {
+		   e.preventDefault();
+			return false;
+		  }
+		});
+		stage.addEventListener("stagemousedown", function(e)
+		{
+			e.nativeEvent.preventDefault();
+			if(e.nativeEvent.which === 3)
+			{
+				var x = e.stageX - stage.x;
+				var y = e.stageY - stage.y;
+				function move(e)
+				{
+					e.nativeEvent.preventDefault();
+					stage.x = e.stageX - x;
+					stage.y = e.stageY - y;
+					console.log('up');
+				}
+				stage.addEventListener("stagemousemove", move);
+				function up(e)
+				{
+					if(e.nativeEvent.which === 3)
+					{
+						e.nativeEvent.preventDefault();
+						stage.removeEventListener("stagemousemove", move);
+						stage.removeEventListener("stagemouseup", up);
+					}
+				}
+				stage.addEventListener("stagemouseup", up);
+			}
+		});
+		
+		window.addEventListener("mousewheel",function(e)
+		{
+			if(e.wheelDelta != 0)
+			{
+				stage.scaleX *= (1+e.wheelDelta/480);
+				stage.scaleY *= (1+e.wheelDelta/480);
+			}
+		},false);
 }
 
 function refresh(event) {
@@ -210,7 +254,7 @@ var migrateOnce = function(speed){
 			if (destX - this.x < 0){
 				flipped = -1;
 			}
-			
+
 			this.x += flipped*totalMovement*Math.cos(angle);
 			this.y += flipped*totalMovement*Math.sin(angle);
 		} else {
