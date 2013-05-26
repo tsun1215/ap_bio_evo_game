@@ -18,6 +18,6 @@ function growth() {
 }
 
 function selectAid() {
-	var shadow
+	var shadow = 
 	stage.addChild()
 }
