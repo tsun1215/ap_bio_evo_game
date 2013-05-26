@@ -11,9 +11,9 @@ function initGame() {
 	console.log("chkpt 1");
 	console.log("chkpt 2");
 	sList = new Array();
-	createSettlement(100,5,5);
-	createSettlement(200,10,20);
-	createSettlement(200,100,200);
+	new Settlement(100,5,5);
+	new Settlement(200,10,20);
+	new Settlement(200,100,200);
 	initScreen();
 	console.log(sList);
 }
@@ -43,23 +43,18 @@ function mouseHandler(event){
 		});
 	}
 }
-function createSettlement(pop, xCoord, yCoord){
-	var settle = new Settlement();
-	settle.population = pop;
-	settle.x = xCoord;
-	settle.y = yCoord;
-	settle.graphics.beginFill("red").drawCircle(0,0,10);
-	stage.addChild(settle);
-	sList.push(settle);
-}
-function Settlement() {
-	this.population;
+function Settlement(pop, xCoord, yCoord, map) {
+	this.population = pop;
+	this.x = xCoord;
+	this.y = yCoord;
 	this.destination;
 	this.speed;
 	this.migrateOnce = migrateOnce;
 	this.addEventListener("mousedown", mouseHandler);
+	this.graphics.beginFill("red").drawCircle(0,0,10);
+	stage.addChild(this);
+	sList.push(this);
 }
-
 
 var migrateOnce = function(fpsDelta){
 	if (this.destination != null){
