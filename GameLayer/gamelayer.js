@@ -24,14 +24,18 @@ function initGame() {
 	sList = new Array();
 	initUI();
 	initmap();
-	new Settlement(200,100,200, mapArr);
+	new Settlement(400,400,400, mapArr);
+	new Settlement(50,300,430, mapArr);
+	new Settlement(243,444,333, mapArr);
+	stage.x = -100;
+	stage.y = -100;
 	initScreen();
 	initSight();
 	initPopAdjuster();
 }
 
 function initmap(){
-	mapArr = new Map(300,150,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+	mapArr = new Map(150,150,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
 	mapArr.generate();
 	map = new createjs.Container();
 	//map.x = -(mapArr.cols*mapArr.tile_width)/2;
@@ -227,6 +231,7 @@ function mouseHandler(event){
 			focus = null;
 			// stage.removeEventListener('click', stageEventHandler);
 			stage.removeEventListener('stagemousemove', stageEventHandler);
+			contentcontainer.children[1].removeAllChildren();
 		} else {
 			focus = event.target;
 			//console.log(focus);
