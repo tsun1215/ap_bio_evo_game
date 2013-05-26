@@ -5,6 +5,7 @@ function Map(rows, cols, tile_width, seeds)
 	this.cols = cols;
 	this.tile_width = tile_width;
 	this.seeds = seeds;
+
 }
 
 Map.prototype.generatePerlin = Map.prototype.generate = function()
