@@ -10,6 +10,7 @@ Settlement.prototype.constructor = Settlement;
 
 function initGame() {
 	stage = new createjs.Stage("screen");
+	stage.enableMouseOver(10);
 	console.log("chkpt 1");
 	console.log("chkpt 2");
 	sList = new Array();
@@ -28,18 +29,44 @@ function initScreen() {
 
 function refresh() {
 	for(i in sList) {
-		sList[i].migrateOnce(interval);
+		sList[i].migrateOnce();
 	}
 	stage.update();
 }
 
 function mouseHandler(event){
+	console.log("SOME EVENT HAPPENED");
 	if (event.type == "click"){
 		focus = event.target;
-		focus.showPopAdjuster();
-		event.addEventListener("mouseWheel", function (evt){
+		sight.alpha = .5;
+		popAdjuster.alpha = 1;
+		console.log("first clicked");
+		event.addEventListener("click", function (ev){
+			console.log("secondclicked");
+			if (ev.type == "click"){
+				console.log("mouse was clicked a second time");
+				if (focus.movingPop > 0){
+				
+				if (focus.movingPop < focus.population){	
+					var settle = new Settlement(focus.movingPop, focus.x, focus.y, focus.map);
+					settle.destinationX = ev.stageX;
+					settle.destinationY = ev.stageY;
+					focus.population = focus.population - movingPop;
+					focus = null;
+				} else {
+					focus.destinationX = ev.stageX;
+					focus.destinationY = ev.stageY;
+					}
+				} 
+				sight.alpha = 0;
+				popAdjuster.alpha = 0;
+				console.log("secondclicked1");
+			}	
+		});
+		event.addEventListener("mouseWheel", function (ev){
+
 			var zoom;
-			if(Math.max(-1, Math.min(1, (evt.wheelDelta || -evt.detail)))>0){
+			if(Math.max(-1, Math.min(1, (ev.wheelDelta || -ev.detail)))>0){
 				zoom=1;
 			}else{
 				zoom=-1;
@@ -54,24 +81,27 @@ function mouseHandler(event){
 			} else {
 				focus.movinPop = 0;
 			}
-			
-			evt.addEventListener("click", function (ev){
-
-			})
-		})
-	}
-	if (event.type == "mousedown"){
-		console.log("mousedown");
-		focus = event.target;
-		event.addEventListener("mouseup", function(evt) {
-			console.log("mouseup");
-			focus.destinationX = evt.stageX;
-			focus.destinationY = evt.stageY;
-			console.log(evt.stageX);
-			console.log(focus.destinationX);
-			focus = null;
 		});
+		event.addEventListener("mousemove", function (ev){
+			console.log("FOLLOWING CURSOR");
+			aimSight(ev.stageX, ev.stageY);
+			aimPopAdjuster();
+		});
+		
+
 	}
+	// if (event.type == "mousedown"){
+	// 	console.log("mousedown");
+	// 	focus = event.target;
+	// 	event.addEventListener("mouseup", function(evt) {
+	// 		console.log("mouseup");
+	// 		focus.destinationX = evt.stageX;
+	// 		focus.destinationY = evt.stageY;
+	// 		console.log(evt.stageX);
+	// 		console.log(focus.destinationX);
+	// 		focus = null;
+	// 	});
+	// }
 }
 function Settlement(pop, xCoord, yCoord, map) {
 	this.population = pop;
@@ -81,14 +111,19 @@ function Settlement(pop, xCoord, yCoord, map) {
 	this.destinationX;
 	this.destinationY;
 	this.speed;
+	this.movingPop;
 	this.migrateOnce = migrateOnce;
-	this.addEventListener("mousedown", mouseHandler);
+	this.addEventListener("click", mouseHandler);
+	this.addEventListener("mouseWheel", mouseHandler);
+	this.addEventListener("mousemove", mouseHandler);
 	this.graphics.beginFill("red").drawCircle(0,0,10);
 	stage.addChild(this);
 	sList.push(this);
 }
 
-
+function createMigrater(destX, destY){
+	var settle = new settlement 
+}
 var migrateOnce = function(){
 	var totalMovement = 10;
 
@@ -112,9 +147,12 @@ var migrateOnce = function(){
 		
 		this.x += flipped*totalMovement*Math.cos(angle);
 		this.y += flipped*totalMovement*Math.sin(angle);
+		} else {
+			this.destinationX = null;
+		}
 	}
 }
-}
+
 
 var Loc = function(xCoord, yCoord){
 	var x;
@@ -122,7 +160,7 @@ var Loc = function(xCoord, yCoord){
 }
 
 function initSight() {
-	sight = createjs.Shape();
+	sight = new createjs.Shape();
 	sight.graphics.beginFill("blue").drawCircle(0,0,10);
 	stage.addChild(sight);
 }
@@ -136,8 +174,12 @@ function aimSight(xCoords, yCoords) {
 
 function initPopAdjuster() {
 	var popFrame = new createjs.Shape();
-	frame.graphics.beginFill("blue").drawRoundRect(0,0,20,10,5);
-	var popText = new createjs.Text(focus.movingPop, "20px Arial", "black");
+	popFrame.graphics.beginFill("blue").drawRoundRect(0,0,20,10,5);
+	if (focus != null){
+		var popText = new createjs.Text(focus.movingPop, "20px Arial", "black");
+	} else {
+		var popText = new createjs.Text("", "20px Arial", "black");
+	}
 	popAdjuster = new createjs.Container();
 	popAdjuster.addChild(popFrame, popText);
 }
