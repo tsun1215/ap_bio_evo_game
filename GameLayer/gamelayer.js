@@ -422,8 +422,10 @@ Settlement.prototype.updatePopTag = function() {
 Settlement.prototype.checkMerge = function(xCoord, yCoord) {
 	var index = sList.indexOf(this);
 	var mergeSett;
+	var set_loc = stage.globalToLocal(xCoord, yCoord);
 	for(i in sList) {
-		if(Math.sqrt(Math.pow(xCoord - sList[i].x,2) + Math.pow(yCoord - sList[i].y,2)) <= 8) {
+		var dest_loc = stage.localToLocal(set_loc.x, set_loc.y, sList[i])
+		if(sList[i].hitTest(dest_loc.x, dest_loc.y)) {
 			if(i != index){this.mergeSett = sList[i];}
 		}
 	}
