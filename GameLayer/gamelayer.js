@@ -2,6 +2,8 @@ var sList;
 var stage;
 var interval = 25;
 var focus;
+var sight;
+var popAdjuster;
 
 Settlement.prototype = new createjs.Shape();
 Settlement.prototype.constructor = Settlement;
@@ -15,7 +17,8 @@ function initGame() {
 	new Settlement(200,10,20);
 	new Settlement(200,100,200);
 	initScreen();
-	console.log(sList);
+	initSight();
+	initPopAdjuster();
 }
 
 function initScreen() {
@@ -37,9 +40,9 @@ function mouseHandler(event){
 		event.addEventListener("mouseWheel", function (evt){
 			var zoom;
 			if(Math.max(-1, Math.min(1, (evt.wheelDelta || -evt.detail)))>0){
-			zoom=1;
+				zoom=1;
 			}else{
-			zoom=-1;
+				zoom=-1;
 			}
 			if (focus.movingPop + zoom < 0){
 				if (focus.movingPop + zoom < focus.population){
@@ -53,7 +56,7 @@ function mouseHandler(event){
 			}
 			
 			evt.addEventListener("click", function (ev){
-								
+
 			})
 		})
 	}
@@ -72,9 +75,11 @@ function mouseHandler(event){
 }
 function Settlement(pop, xCoord, yCoord, map) {
 	this.population = pop;
+	this.movingPop;
 	this.x = xCoord;
 	this.y = yCoord;
-	this.destination;
+	this.destinationX;
+	this.destinationY;
 	this.speed;
 	this.migrateOnce = migrateOnce;
 	this.addEventListener("mousedown", mouseHandler);
@@ -107,11 +112,38 @@ var migrateOnce = function(){
 		
 		this.x += flipped*totalMovement*Math.cos(angle);
 		this.y += flipped*totalMovement*Math.sin(angle);
-		}
 	}
+}
 }
 
 var Loc = function(xCoord, yCoord){
 	var x;
 	var y;
+}
+
+function initSight() {
+	sight = createjs.Shape();
+	sight.graphics.beginFill("blue").drawCircle(0,0,10);
+	stage.addChild(sight);
+}
+
+function aimSight(xCoords, yCoords) {
+	sight.x = xCoords;
+	sight.y = yCoords;
+	stage.update();
+}
+
+
+function initPopAdjuster() {
+	var popFrame = new createjs.Shape();
+	frame.graphics.beginFill("blue").drawRoundRect(0,0,20,10,5);
+	var popText = new createjs.Text(focus.movingPop, "20px Arial", "black");
+	popAdjuster = new createjs.Container();
+	popAdjuster.addChild(popFrame, popText);
+}
+
+function aimPopAdjuster() {
+	popAdjuster = (focus.x + sight.x)/2;
+	popAdjuster = (focus.y + focus.y)/2;
+	stage.update();
 }
