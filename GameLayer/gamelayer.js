@@ -277,7 +277,7 @@ function Settlement(pop, xCoord, yCoord, map,idealT,tempResist) {
 	this.addEventListener("click", mouseHandler);
 	// this.addEventListener("mouseWheel", mouseHandler);
 	// this.addEventListener("stagemousemove", mouseHandler);
-	this.graphics.beginFill("red").drawCircle(0,0,10);
+	this.graphics.beginStroke("black").beginFill("red").drawCircle(0,0,8);
 	stage.addChild(this);
 	sList.push(this);
 }
