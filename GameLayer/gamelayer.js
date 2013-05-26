@@ -25,11 +25,11 @@ function initGame() {
 }
 
 function initmap(){
-	var mapArr = new Map(200,150,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+	var mapArr = new Map(200,200,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
 	mapArr.generate();
 	map = new createjs.Container();
-	map.x = -(mapArr.cols*mapArr.tile_width)/2;
-	map.y = -(mapArr.rows*mapArr.tile_width)/2;
+	//map.x = -(mapArr.cols*mapArr.tile_width)/2;
+	//map.y = -(mapArr.rows*mapArr.tile_width)/2;
 	stage.addChild(map);
 	for(var i = 0; i<mapArr.rows; i++)
 	{
@@ -66,7 +66,9 @@ function initmap(){
 				color = rgbToHex(newwater,newwater,newwater);
 			}
 			var pixel = new createjs.Shape();
-			pixel.graphics.beginFill(color).drawRect(i*mapArr.tile_width,j*mapArr.tile_width,mapArr.tile_width,mapArr.tile_width);
+			pixel.graphics.beginFill(color).drawRect(0,0,mapArr.tile_width,mapArr.tile_width);
+			pixel.x = i*mapArr.tile_width;
+			pixel.y = j*mapArr.tile_width;
 			map.addChild(pixel);
 		}
 		map.cache(0,0,mapArr.rows*mapArr.tile_width,mapArr.cols*mapArr.tile_width);
@@ -93,19 +95,71 @@ function initScreen() {
 			case 'd':
 			stage.x+=5;
 			break;
-			case 'q':
-			if(focus.movingPop > 0) {
-				focus.movingPop-=10
-			}; 
-			break;
-			case 'e':
+		}
+		updatePopAdjuster();
+	};
+	var canvas = document.getElementById("screen");
+	canvas.addEventListener("mousewheel", MouseWheelHandler, false);
+	canvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+	stage.canvas.addEventListener("contextmenu",function(e) {
+		if (e.button === 2) {
+			e.preventDefault();
+			return false;
+		}
+	});
+	stage.addEventListener("stagemousedown", function(e)
+	{
+		e.nativeEvent.preventDefault();
+		if(e.nativeEvent.which === 3)
+		{
+			var x = e.stageX - stage.x;
+			var y = e.stageY - stage.y;
+			function move(e)
+			{
+				e.nativeEvent.preventDefault();
+				stage.x = e.stageX - x;
+				stage.y = e.stageY - y;
+				console.log('up');
+			}
+			stage.addEventListener("stagemousemove", move);
+			function up(e)
+			{
+				if(e.nativeEvent.which === 3)
+				{
+					e.nativeEvent.preventDefault();
+					stage.removeEventListener("stagemousemove", move);
+					stage.removeEventListener("stagemouseup", up);
+				}
+			}
+			stage.addEventListener("stagemouseup", up);
+		}
+	});			
+}
+
+function MouseWheelHandler(e) {
+	if(focus!=null){
+		if(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))>0){
 			if(focus.movingPop < focus.population) {
 				focus.movingPop+=10
 			}; 
-			break;
+		}else{
+			if(focus.movingPop > 0) {
+				focus.movingPop-=10
+			}
 		}
-		updatePopAdjuster()
-	};
+		updatePopAdjuster();		
+	}else{
+		if(e.wheelDelta != 0)
+		{
+			if(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))>0){
+				var zoom = 1.1/1;
+			}else{
+				var zoom=1/1.1;
+			}
+			stage.scaleX *= zoom;
+			stage.scaleY *= zoom;
+		}
+	}
 }
 
 function refresh(event) {
@@ -120,7 +174,7 @@ function refresh(event) {
 
 function mouseHandler(event){
 	console.log("SOME EVENT HAPPENED");
-	if (event.type == "click"){
+	if (event.type == "click" && event.nativeEvent.which === 1){
 		console.log(sight.x);
 		if (focus != null){
 			console.log("Secondclicked");
@@ -220,7 +274,7 @@ Settlement.prototype.migrateOnce = function(speed){
 			if (destX - this.x < 0){
 				flipped = -1;
 			}
-			
+
 			this.x += flipped*totalMovement*Math.cos(angle);
 			this.y += flipped*totalMovement*Math.sin(angle);
 		} else {
@@ -243,10 +297,12 @@ function initSight() {
 	sight = new createjs.Shape();
 	sight.graphics.beginFill("blue").drawCircle(0,0,9);
 	stage.addChild(sight);
+	sight.alpha = 0;
 	sight.addEventListener("click", mouseHandler);
 }
 
 function aimSight(xCoords, yCoords) {
+	sight.alpha=0.5;
 	sight.x = xCoords;
 	sight.y = yCoords;
 	stage.update();
@@ -258,12 +314,14 @@ function initPopAdjuster() {
 	popFrame.graphics.beginFill("black").drawRoundRect(-25,-50,50,30,5);
 	popText = new createjs.Text();
 	popAdjuster = new createjs.Container();
+	popAdjuster.alpha = 0;
 	popAdjuster.addChild(popFrame, popText);
 	stage.addChild(popAdjuster);
 }
 
 function aimPopAdjuster() {
 	if(focus != null) {
+		popAdjuster.alpha = 1;
 		popAdjuster.x = sight.x;
 		popAdjuster.y = sight.y;
 		stage.update();
