@@ -4,17 +4,15 @@ var interval = 25;
 var focus;
 
 function initGame() {
+	stage = new createjs.Stage("screen");
 	var s1 = new Settlement(100, 5, 5);
 	sList = new Array();
 	sList.push(s1);
-
+	
 	initScreen();
 }
 
 function initScreen() {
-	stage = new createjs.Stage("screen");
-	console.log("stage set!");
-	
 	createjs.Ticker.addEventListener("tick", refresh);
 	createjs.Ticker.setInterval(interval);
 	stage.addEventListener("mousedown", mouseHandler);
