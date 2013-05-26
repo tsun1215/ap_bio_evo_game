@@ -2,12 +2,14 @@ var sList;
 var stage;
 var interval = 25;
 var focus;
+var clicked = false;
 
 Settlement.prototype = new createjs.Shape();
 Settlement.prototype.constructor = Settlement;
 
 function initGame() {
 	stage = new createjs.Stage("screen");
+	stage.enableMouseOver(10);
 	console.log("chkpt 1");
 	console.log("chkpt 2");
 	sList = new Array();
@@ -25,7 +27,7 @@ function initScreen() {
 
 function refresh() {
 	for(i in sList) {
-		sList[i].migrateOnce(interval);
+		sList[i].migrateOnce();
 	}
 	stage.update();
 }
@@ -34,7 +36,10 @@ function mouseHandler(event){
 	if (event.type == "click"){
 		focus = event.target;
 		focus.showPopAdjuster();
+		sight.isVisible= true;
+		popAdjuster.isVisible = true;
 		event.addEventListener("mouseWheel", function (evt){
+
 			var zoom;
 			if(Math.max(-1, Math.min(1, (evt.wheelDelta || -evt.detail)))>0){
 			zoom=1;
@@ -51,31 +56,53 @@ function mouseHandler(event){
 			} else {
 				focus.movinPop = 0;
 			}
-			
-			evt.addEventListener("click", function (ev){
-								
-			})
+		}	
+		event.addEventListener("mousemove", function (ev){
+			aimSight(ev.stageX, ev.stageY);
+			aimPopAdjuster();
 		})
+		event.addEventListener("click", function (ev){
+			if (ev.type == "click"){
+				console.log("mouse was clicked a second time");
+				if (focus.movingPop > 0){
+				
+				if (focus.movingPop < focus.population){	
+					var settle = new Settlement(focus.movingPop, focus.x, focus.y, focus.map);
+					settle.destinationX = ev.stageX;
+					settle.destinationY = ev.stageY;
+					focus.population = focus.population - movingPop;
+					focus = null;
+				} else {
+					focus.destinationX = ev.stageX;
+					focus.destinationY = ev.stageY;
+					}
+				} 
+				sight.isVisible = false;
+			}	
+		})
+
 	}
-	if (event.type == "mousedown"){
-		console.log("mousedown");
-		focus = event.target;
-		event.addEventListener("mouseup", function(evt) {
-			console.log("mouseup");
-			focus.destinationX = evt.stageX;
-			focus.destinationY = evt.stageY;
-			console.log(evt.stageX);
-			console.log(focus.destinationX);
-			focus = null;
-		});
-	}
+	// if (event.type == "mousedown"){
+	// 	console.log("mousedown");
+	// 	focus = event.target;
+	// 	event.addEventListener("mouseup", function(evt) {
+	// 		console.log("mouseup");
+	// 		focus.destinationX = evt.stageX;
+	// 		focus.destinationY = evt.stageY;
+	// 		console.log(evt.stageX);
+	// 		console.log(focus.destinationX);
+	// 		focus = null;
+	// 	});
+	// }
 }
 function Settlement(pop, xCoord, yCoord, map) {
 	this.population = pop;
 	this.x = xCoord;
 	this.y = yCoord;
-	this.destination;
+	this.destinationX;
+	this.destinationY;
 	this.speed;
+	this.movingPop;
 	this.migrateOnce = migrateOnce;
 	this.addEventListener("mousedown", mouseHandler);
 	this.graphics.beginFill("red").drawCircle(0,0,10);
@@ -83,7 +110,9 @@ function Settlement(pop, xCoord, yCoord, map) {
 	sList.push(this);
 }
 
-
+function createMigrater(destX, destY){
+	var settle = new settlement 
+}
 var migrateOnce = function(){
 	var totalMovement = 10;
 
@@ -107,7 +136,10 @@ var migrateOnce = function(){
 		
 		this.x += flipped*totalMovement*Math.cos(angle);
 		this.y += flipped*totalMovement*Math.sin(angle);
+		} else {
+			this.destinationX = null;
 		}
+
 	}
 }
 
