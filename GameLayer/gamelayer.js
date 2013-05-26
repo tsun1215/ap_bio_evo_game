@@ -13,18 +13,20 @@ function initGame() {
 
 function initScreen() {
 	stage = new createjs.Stage("screen");
-	createjs.Ticker.addEventListener("tick", update);
+	console.log("stage set!");
+	
+	createjs.Ticker.addEventListener("tick", refresh);
 	createjs.Ticker.setInterval(interval);
 	stage.addEventListener("mousedown", mouseHandler);
 	stage.enableMouseOver(10);
 	stage.mouseMoveOutside = true;
 }
 
-function update() {
+function refresh() {
 	for(i in sList) {
 		sList[i].migrateOnce(interval);
-		sList[i].draw();
 	}
+	stage.update();
 }
 
 function mouseHandler(event){
@@ -42,10 +44,12 @@ var Settlement = function(pop, xCoord, yCoord) {
 	this.destination = null;
 	this.speed = 1;
 	this.shape = new Sprite(xCoord, yCoord, 10);
+	stage.addChild(this.shape);
+	this.setX = function(x2){shape.x = x2}
+	this.setY = function(y2){shape.y = y2}
 	this.getX = function() {return this.shape.x;}
 	this.getY = function() {return this.shape.y}
-
-
+	this.migrateOnce = migrateOnce;
 }
 
 var Sprite = function(xCoord, yCoord, radius) {
@@ -56,7 +60,7 @@ var Sprite = function(xCoord, yCoord, radius) {
 }
 
 var migrateOnce = function(fpsDelta){
-	if (destination != null){
+	if (this.destination != null){
 		// flipped accounts for problems with arctan's range only being -pi/2 to pi/2
 		// either 1 (atan works) or -1 (atan doesn't work)
 		var flipped = 1;
