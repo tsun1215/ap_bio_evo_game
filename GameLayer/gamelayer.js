@@ -331,7 +331,7 @@ var Loc = function(xCoord, yCoord){
 
 function initSight() {
 	sight = new createjs.Shape();
-	sight.graphics.beginFill("blue").drawCircle(0,0,10);
+	sight.graphics.beginFill("blue").drawCircle(0,0,9);
 	stage.addChild(sight);
 	sight.addEventListener("click", mouseHandler);
 	// sight.addEventListener("stagemousemove", mouseHandler);
