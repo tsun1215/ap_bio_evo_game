@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="js/map.js"></script>
+	<script src="js/perlin.js"></script>
+	<style>
+		*
+		{
+			padding:0;
+			margin:0;
+			line-height:10px;
+		}
+		div
+		{
+			width:10px;
+			height:10px;
+			display:block;
+			float:left;
+		}
+	</style>
+    <script>
+	var map,ctx;
+	function init()
+	{
+		map = new Map(70,70,10);
+		map.generatePerlin(10000);
+		ctx = document.getElementById('mien').getContext('2d');
+		paint();
+	}
+	
+	function paint()
+	{
+		map.generatePerlin(10000);
+		for(var i = 0; i<map.tiles.length; i++)
+			{
+				for(var j=0; j<map.tiles.length; j++)
+				{
+					var temp = Math.floor(map.tiles[i][j].attributes.temperature * 255);
+					var water = Math.floor(map.tiles[i][j].attributes.water * 255);
+					var nut = Math.floor(map.tiles[i][j].attributes.nutrients * 255);
+					ctx.fillStyle = rgbToHex(temp,nut,water);
+					ctx.fillRect(i*10,j*10,10,10);
+				}
+			}
+	}
+
+    </script>
+</head>
+<body onLoad="init();">
+<canvas id="mien"  width="800px" height="600">
+</canvas>
+</body>
+</html>
