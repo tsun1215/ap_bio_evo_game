@@ -6,16 +6,22 @@ var focus = null;
 var sight;
 var popAdjuster;
 var popText;
+var uiStage;
+var currentPop;
+var currentName;
+var resist;
 
 Settlement.prototype = new createjs.Shape();
 Settlement.prototype.constructor = Settlement;
 
 function initGame() {
 	stage = new createjs.Stage("screen");
+	uiStage = new createjs.Stage("uiStage");
 	stage.enableMouseOver(10);
 	console.log("chkpt 1");
 	console.log("chkpt 2");
 	sList = new Array();
+	initUI();
 	initmap();
 	new Settlement(100,5,5);
 	new Settlement(200,10,20);
@@ -26,7 +32,7 @@ function initGame() {
 }
 
 function initmap(){
-	var mapArr = new Map(200,150,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+	var mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
 	mapArr.generate();
 	map = new createjs.Container();
 	map.x = -(mapArr.cols*mapArr.tile_width)/2;
@@ -72,6 +78,10 @@ function initmap(){
 		}
 		map.cache(0,0,mapArr.rows*mapArr.tile_width,mapArr.cols*mapArr.tile_width);
 	}
+	var minimap = map.clone();
+	minimap.scaleX = .7;
+	minimap.scaleY = .7;
+	contentcontainer.children[1].addChild(minimap);
 	stage.update();
 }
 
@@ -114,10 +124,12 @@ function refresh(event) {
 		sList[i].migrateOnce(event.delta/10);
 	}
 	stage.update(event);
+	uiStage.update(event);
 }
 
 function mouseHandler(event){
 	console.log("SOME EVENT HAPPENED");
+
 	if (event.type == "click"){
 		console.log(sight.x);
 		if (focus != null){
@@ -146,17 +158,33 @@ function mouseHandler(event){
 			focus = null;
 			// stage.removeEventListener('click', stageEventHandler);
 			stage.removeEventListener('stagemousemove', stageEventHandler);
-
+			contentcontainer.children[1].removeAllChildren();	
 		} else {
 			focus = event.target;
 			console.log(focus);
+			currentPopulation = focus;
 			aimSight(event.stageX, event.stageY);
 			sight.alpha = .5;
 			popAdjuster.alpha = 1;
 			console.log(sight.alpha);
 			console.log("first clicked");
 			console.log(focus);
-			stage.addEventListener("stagemousemove", stageEventHandler);
+			stage.addEventListener("stagemousemove", stageEventHandler);	
+
+			currentName = new createjs.Text("Current Population", "24px Arial", "#000");
+			currentName.x = 175;
+			currentName.y = 10;
+			contentcontainer.children[1].addChild(currentName);
+
+			currentPop = new createjs.Text("Population size: " + focus.population, "12px Arial", "#000");
+			currentPop.x = 10;
+			currentPop.y =50;
+			contentcontainer.children[1].addChild(currentPop);
+
+			resist = new createjs.Text("Temperature resistance: " + focus.traits.list[0], "12px Arial", "#000");
+			resist.x = 10;
+			resist.y = 100;
+			contentcontainer.children[1].addChild(resist);
 		}
 	}
 }
