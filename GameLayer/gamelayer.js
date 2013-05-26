@@ -26,7 +26,7 @@ function initGame() {
 }
 
 function initmap(){
-	var mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+	var mapArr = new Map(200,200,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
 	mapArr.generate();
 	map = new createjs.Container();
 	//map.x = -(mapArr.cols*mapArr.tile_width)/2;
@@ -162,7 +162,7 @@ function refresh(event) {
 
 function mouseHandler(event){
 	console.log("SOME EVENT HAPPENED");
-	if (event.type == "click"){
+	if (event.type == "click" && event.nativeEvent.which === 1){
 		console.log(sight.x);
 		if (focus != null){
 			console.log("Secondclicked");
