@@ -2,7 +2,8 @@ var sList;
 var stage;
 var interval = 25;
 var focus;
-var clicked = false;
+var sight;
+var popAdjuster;
 
 Settlement.prototype = new createjs.Shape();
 Settlement.prototype.constructor = Settlement;
@@ -17,7 +18,8 @@ function initGame() {
 	new Settlement(200,10,20);
 	new Settlement(200,100,200);
 	initScreen();
-	console.log(sList);
+	initSight();
+	initPopAdjuster();
 }
 
 function initScreen() {
@@ -28,23 +30,46 @@ function initScreen() {
 function refresh() {
 	for(i in sList) {
 		sList[i].migrateOnce();
+		// sList[i].survival();
 	}
 	stage.update();
 }
 
 function mouseHandler(event){
+	console.log("SOME EVENT HAPPENED");
 	if (event.type == "click"){
 		focus = event.target;
-		focus.showPopAdjuster();
-		sight.isVisible= true;
-		popAdjuster.isVisible = true;
-		event.addEventListener("mouseWheel", function (evt){
-
+		sight.alpha = .5;
+		popAdjuster.alpha = 1;
+		console.log("first clicked");
+		event.addEventListener("click", function (ev){
+			console.log("secondclicked");
+			if (ev.type == "click"){
+				console.log("mouse was clicked a second time");
+				if (focus.movingPop > 0){
+				
+				if (focus.movingPop < focus.population){	
+					var settle = new Settlement(focus.movingPop, focus.x, focus.y, focus.map);
+					settle.destinationX = ev.stageX;
+					settle.destinationY = ev.stageY;
+					focus.population = focus.population - movingPop;
+					focus = null;
+				} else {
+					focus.destinationX = ev.stageX;
+					focus.destinationY = ev.stageY;
+					}
+				} 
+				sight.alpha = 0;
+				popAdjuster.alpha = 0;
+				console.log("secondclicked1");
+			}	
+		});
+		event.addEventListener("mouseWheel", function (ev){
 			var zoom;
-			if(Math.max(-1, Math.min(1, (evt.wheelDelta || -evt.detail)))>0){
-			zoom=1;
+			if(Math.max(-1, Math.min(1, (ev.wheelDelta || -ev.detail)))>0){
+				zoom=1;
 			}else{
-			zoom=-1;
+				zoom=-1;
 			}
 			if (focus.movingPop + zoom < 0){
 				if (focus.movingPop + zoom < focus.population){
@@ -79,7 +104,7 @@ function mouseHandler(event){
 				} 
 				sight.isVisible = false;
 			}	
-		})
+		});
 
 	}
 	// if (event.type == "mousedown"){
@@ -95,8 +120,9 @@ function mouseHandler(event){
 	// 	});
 	// }
 }
-function Settlement(pop, xCoord, yCoord, map) {
+function Settlement(pop, xCoord, yCoord, map,idealT,tempResist) {
 	this.population = pop;
+	this.movingPop;
 	this.x = xCoord;
 	this.y = yCoord;
 	this.destinationX;
@@ -104,15 +130,20 @@ function Settlement(pop, xCoord, yCoord, map) {
 	this.speed;
 	this.movingPop;
 	this.migrateOnce = migrateOnce;
-	this.addEventListener("mousedown", mouseHandler);
+	this.addEventListener("click", mouseHandler);
+	this.addEventListener("mouseWheel", mouseHandler);
+	this.addEventListener("mousemove", mouseHandler);
 	this.graphics.beginFill("red").drawCircle(0,0,10);
 	stage.addChild(this);
 	sList.push(this);
 }
 
-function createMigrater(destX, destY){
-	var settle = new settlement 
+Settlement.prototype.survival = function(map){
+	var netGrowth = (this.tempResist - Math.abs(Math.floor((this.map.tiles[this.xCoord / 16][this.yCoord / 16].temperature) * 100))) / this.tempResist;
+	var newPop = netGrowth * interval + this.population;
+	this.population = newPop;
 }
+
 var migrateOnce = function(){
 	var totalMovement = 10;
 
@@ -143,7 +174,39 @@ var migrateOnce = function(){
 	}
 }
 
+
 var Loc = function(xCoord, yCoord){
 	var x;
 	var y;
+}
+
+function initSight() {
+	sight = new createjs.Shape();
+	sight.graphics.beginFill("blue").drawCircle(0,0,10);
+	stage.addChild(sight);
+}
+
+function aimSight(xCoords, yCoords) {
+	sight.x = xCoords;
+	sight.y = yCoords;
+	stage.update();
+}
+
+
+function initPopAdjuster() {
+	var popFrame = new createjs.Shape();
+	popFrame.graphics.beginFill("blue").drawRoundRect(0,0,20,10,5);
+	if (focus != null){
+		var popText = new createjs.Text(focus.movingPop, "20px Arial", "black");
+	} else {
+		var popText = new createjs.Text("", "20px Arial", "black");
+	}
+	popAdjuster = new createjs.Container();
+	popAdjuster.addChild(popFrame, popText);
+}
+
+function aimPopAdjuster() {
+	popAdjuster = (focus.x + sight.x)/2;
+	popAdjuster = (focus.y + focus.y)/2;
+	stage.update();
 }
