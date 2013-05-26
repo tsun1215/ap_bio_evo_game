@@ -3,27 +3,24 @@ var stage;
 var interval = 25;
 var focus;
 
+Settlement.prototype = new createjs.Shape();
+Settlement.prototype.constructor = Settlement;
+
 function initGame() {
 	stage = new createjs.Stage("screen");
 	console.log("chkpt 1");
 	console.log("chkpt 2");
 	sList = new Array();
-
-	var s1 = createSettlement(100,5,5);
-
-	stage.addChild(s1);
-	sList.push(s1);
-
+	createSettlement(100,5,5);
+	createSettlement(200,10,20);
+	createSettlement(200,100,200);
 	initScreen();
+	console.log(sList);
 }
-
-Settlement.prototype = new createjs.Shape();
-Settlement.prototype.constructor = Settlement;
 
 function initScreen() {
 	createjs.Ticker.addEventListener("tick", refresh);
 	createjs.Ticker.setInterval(interval);
-	
 }
 
 function refresh() {
@@ -48,12 +45,12 @@ function mouseHandler(event){
 }
 function createSettlement(pop, xCoord, yCoord){
 	var settle = new Settlement();
-	settle.population = 100;
+	settle.population = pop;
 	settle.x = xCoord;
 	settle.y = yCoord;
 	settle.graphics.beginFill("red").drawCircle(0,0,10);
-
-	return settle;
+	stage.addChild(settle);
+	sList.push(settle);
 }
 function Settlement() {
 	this.population;
