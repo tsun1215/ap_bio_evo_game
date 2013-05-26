@@ -28,8 +28,8 @@ function initmap(){
 	mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
 	mapArr.generate();
 	map = new createjs.Container();
-	map.x = -(mapArr.cols*mapArr.tile_width)/2;
-	map.y = -(mapArr.rows*mapArr.tile_width)/2;
+	//map.x = -(mapArr.cols*mapArr.tile_width)/2;
+	//map.y = -(mapArr.rows*mapArr.tile_width)/2;
 	stage.addChild(map);
 	for(var i = 0; i<mapArr.rows; i++)
 	{
@@ -66,7 +66,9 @@ function initmap(){
 				color = rgbToHex(newwater,newwater,newwater);
 			}
 			var pixel = new createjs.Shape();
-			pixel.graphics.beginFill(color).drawRect(i*mapArr.tile_width,j*mapArr.tile_width,mapArr.tile_width,mapArr.tile_width);
+			pixel.graphics.beginFill(color).drawRect(0,0,mapArr.tile_width,mapArr.tile_width);
+			pixel.x = i*mapArr.tile_width;
+			pixel.y = j*mapArr.tile_width;
 			map.addChild(pixel);
 		}
 		map.cache(0,0,mapArr.rows*mapArr.tile_width,mapArr.cols*mapArr.tile_width);
@@ -82,30 +84,82 @@ function initScreen() {
 		var charCode = (typeof e.which == "number") ? e.which : e.keyCode;
 		switch(String.fromCharCode(charCode)){
 			case 'w':
-				stage.y-=5;
-				break;
+			stage.y-=5;
+			break;
 			case 'a':
-				stage.x-=5;
-				break;
+			stage.x-=5;
+			break;
 			case 's':
-				stage.y+=5;
-				break;
+			stage.y+=5;
+			break;
 			case 'd':
-				stage.x+=5;
-				break;
-			case 'q':
-				if(focus.movingPop > 0) {
-					focus.movingPop-=10
-				}; 
-				break;
-			case 'e':
-				if(focus.movingPop < focus.population) {
-					focus.movingPop+=10
-				}; 
-				break;
+			stage.x+=5;
+			break;
 		}
-		updatePopAdjuster()
+		updatePopAdjuster();
 	};
+	var canvas = document.getElementById("screen");
+	canvas.addEventListener("mousewheel", MouseWheelHandler, false);
+	canvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+	stage.canvas.addEventListener("contextmenu",function(e) {
+		if (e.button === 2) {
+			e.preventDefault();
+			return false;
+		}
+	});
+	stage.addEventListener("stagemousedown", function(e)
+	{
+		e.nativeEvent.preventDefault();
+		if(e.nativeEvent.which === 3)
+		{
+			var x = e.stageX - stage.x;
+			var y = e.stageY - stage.y;
+			function move(e)
+			{
+				e.nativeEvent.preventDefault();
+				stage.x = e.stageX - x;
+				stage.y = e.stageY - y;
+				console.log('up');
+			}
+			stage.addEventListener("stagemousemove", move);
+			function up(e)
+			{
+				if(e.nativeEvent.which === 3)
+				{
+					e.nativeEvent.preventDefault();
+					stage.removeEventListener("stagemousemove", move);
+					stage.removeEventListener("stagemouseup", up);
+				}
+			}
+			stage.addEventListener("stagemouseup", up);
+		}
+	});			
+}
+
+function MouseWheelHandler(e) {
+	if(focus!=null){
+		if(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))>0){
+			if(focus.movingPop < focus.population) {
+				focus.movingPop+=10
+			}; 
+		}else{
+			if(focus.movingPop > 0) {
+				focus.movingPop-=10
+			}
+		}
+		updatePopAdjuster();		
+	}else{
+		if(e.wheelDelta != 0)
+		{
+			if(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))>0){
+				var zoom = 1.1/1;
+			}else{
+				var zoom=1/1.1;
+			}
+			stage.scaleX *= zoom;
+			stage.scaleY *= zoom;
+		}
+	}
 }
 
 function refresh(event) {
@@ -116,7 +170,10 @@ function refresh(event) {
 	}
 	for(i in sList) {
 		sList[i].migrateOnce(event.delta/10);
+		if(sList[i] != null) {
+			sList[i].updatePopTag();
 		}
+	}
 	stage.update(event);
 }
 
@@ -127,8 +184,9 @@ function refresh(event) {
 // }
 function mouseHandler(event){
 	//console.log("SOME EVENT HAPPENED");
-	if (event.type == "click"){
-		//console.log(sight.x);
+	console.log("SOME EVENT HAPPENED");
+	if (event.type == "click" && event.nativeEvent.which === 1){
+		console.log(sight.x);
 		if (focus != null){
 			//console.log("Secondclicked");
 			//console.log(focus.movingPop);
@@ -152,10 +210,10 @@ function mouseHandler(event){
 			// sight.alpha = 0;
 			// popAdjuster.alpha = 0;
 			focus.movingPop = focus.population;
+			focus.checkMerge(event.stageX, event.stageY);
 			focus = null;
 			// stage.removeEventListener('click', stageEventHandler);
 			stage.removeEventListener('stagemousemove', stageEventHandler);
-
 		} else {
 			focus = event.target;
 			//console.log(focus);
@@ -199,8 +257,6 @@ function Settlement(pop, xCoord, yCoord, amap) {
 	this.destinationX;
 	this.destinationY;
 	this.speed;
-	this.movingPop;
-	this.migrateOnce = migrateOnce;
 	this.addEventListener("click", mouseHandler);
 	var color = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]))
 	this.graphics.beginStroke("black").beginFill(color).drawCircle(0,0,8);
@@ -260,7 +316,7 @@ Settlement.prototype.survival = function(){
 	// this.population = newPop;
 }
 
-var migrateOnce = function(speed){
+Settlement.prototype.migrateOnce = function(speed){
 	var totalMovement = speed;
 
 	if (this.destinationX != null){
@@ -276,7 +332,7 @@ var migrateOnce = function(speed){
 			if (destX - this.x < 0){
 				flipped = -1;
 			}
-			
+
 			this.x += flipped*totalMovement*Math.cos(angle);
 			this.y += flipped*totalMovement*Math.sin(angle);
 		} else {
@@ -284,6 +340,7 @@ var migrateOnce = function(speed){
 			sight.alpha = 0;
 			popAdjuster.alpha = 0;
 		}
+		this.checkMergeHelper();
 	}
 }
 
@@ -298,10 +355,12 @@ function initSight() {
 	sight = new createjs.Shape();
 	sight.graphics.beginFill("blue").drawCircle(0,0,9);
 	stage.addChild(sight);
+	sight.alpha = 0;
 	sight.addEventListener("click", mouseHandler);
 }
 
 function aimSight(xCoords, yCoords) {
+	sight.alpha=0.5;
 	sight.x = xCoords;
 	sight.y = yCoords;
 	stage.update();
@@ -313,12 +372,14 @@ function initPopAdjuster() {
 	popFrame.graphics.beginFill("black").drawRoundRect(-25,-50,50,30,5);
 	popText = new createjs.Text();
 	popAdjuster = new createjs.Container();
-	popAdjuster.addChild(popFrame);
-	stage.addChild(popAdjuster, popText);
+	popAdjuster.alpha = 0;
+	popAdjuster.addChild(popFrame, popText);
+	stage.addChild(popAdjuster);
 }
 
 function aimPopAdjuster() {
 	if(focus != null) {
+		popAdjuster.alpha = 1;
 		popAdjuster.x = sight.x;
 		popAdjuster.y = sight.y;
 		stage.update();
@@ -330,9 +391,68 @@ function updatePopAdjuster(){
 		stage.removeChild(popAdjuster);
 		popAdjuster.removeChild(popText);
 		popText = new createjs.Text(focus.movingPop, "20px Arial", "white");
-		popText.x = -13;
+		popText.x = -17;
 		popText.y = -46;
 		popAdjuster.addChild(popText);
 		stage.addChild(popAdjuster);
 	}
+}
+
+Settlement.prototype.updatePopTag = function() {
+	if(stage.getChildIndex(this.popTag) == -1) {
+		var tagFrame = new createjs.Shape();
+		tagFrame.graphics.beginFill("black").drawRoundRect(-2,1,20,10,4);
+		this.popTag = new createjs.Container();
+		this.popTag.addChild(tagFrame);
+	}else{
+		stage.removeChild(this.popTag);
+		this.popTag.removeChild(this.tagText);
+		this.popTag.x = this.x;
+		this.popTag.y = this.y;
+	}
+	this.tagText = new createjs.Text(this.population, "9px Arial", "white");
+	this.tagText.x = 0;
+	this.tagText.y = 0;
+	this.popTag.addChild(this.tagText);
+	stage.addChild(this.popTag);
+}
+
+Settlement.prototype.checkMerge = function(xCoord, yCoord) {
+	var index = sList.indexOf(this);
+	var mergeSett;
+	for(i in sList) {
+		if(Math.sqrt(Math.pow(xCoord - sList[i].x,2) + Math.pow(yCoord - sList[i].y,2)) <= 8) {
+			if(i != index){this.mergeSett = sList[i];}
+		}
+	}
+}
+
+Settlement.prototype.checkMergeHelper = function() {
+	if (this.mergeSett != null) {
+		if(Math.abs(this.x - this.mergeSett.x) < 8 && Math.abs(this.y - this.mergeSett.y) < 8) {
+			this.population += this.mergeSett.population;
+			this.movingPop = this.population;
+			stage.removeChild(this.mergeSett);
+			stage.removeChild(this.mergeSett.popTag);
+			sList.splice(sList.indexOf(this.mergeSett), 1);
+			this.mergeSett = null;
+		}
+	}
+}
+
+function getSettByArea(xCenter, yCenter, radius) {
+	for(i in sList) {
+		if(Math.sqrt(Math.pow(xCenter - sList[i].x,2) + Math.pow(yCenter - sList[i].y,2)) <= radius) {
+			return sList[i];
+		}
+	}
+	return null;
+}
+
+function getSettByCoords(xCoord, yCoord) {
+	for(i in sList) {
+		if(sList[i].x == xCoord && sList[i].y == yCoord)
+			return sList[i];
+	}
+	return null;
 }
