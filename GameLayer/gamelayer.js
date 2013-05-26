@@ -29,7 +29,7 @@ function initScreen() {
 function refresh() {
 	for(i in sList) {
 		sList[i].migrateOnce(interval);
-		sList[i].survival(tile)
+		sList[i].survival();
 	}
 	stage.update();
 }
@@ -89,8 +89,8 @@ function Settlement(pop, xCoord, yCoord, map,idealT,tempResist) {
 	sList.push(this);
 }
 
-Settlement.prototype.survival = function(tile){
-	var netGrowth = (this.tempResist - Math.abs(Math.floor((tile.temperature) * 100))) / this.tempResist;
+Settlement.prototype.survival = function(map){
+	var netGrowth = (this.tempResist - Math.abs(Math.floor((this.map.tiles[this.xCoord / 16][this.yCoord / 16].temperature) * 100))) / this.tempResist;
 	var newPop = netGrowth * interval + this.population;
 	this.population = newPop;
 }
