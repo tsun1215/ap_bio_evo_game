@@ -1,7 +1,7 @@
 var sList;
 var stage;
 var interval = 25;
-
+var focus;
 
 function initGame() {
 	var s1 = new Settlement(100, 5, 5);
@@ -15,7 +15,9 @@ function initScreen() {
 	stage = new createjs.Stage("screen");
 	createjs.Ticker.addEventListener("tick", update);
 	createjs.Ticker.setInterval(interval);
-	this.addEventListener("mousedown", mouseHandler);
+	stage.addEventListener("mousedown", mouseHandler);
+	stage.enableMouseOver(10);
+	stage.mouseMoveOutside = true;
 }
 
 function update() {
@@ -26,8 +28,13 @@ function update() {
 }
 
 function mouseHandler(event){
-	
-
+	if (event.type == "mousedown"){
+		focus = event.target.parent;
+	}
+	if (event.type == "mouseup"){
+		focus.destination = new Loc(event.stageX, event.stageY);
+		focus = null;
+	}
 }
 
 var Settlement = function(pop, xCoord, yCoord) {
