@@ -17,8 +17,6 @@ function initGame() {
 	console.log("chkpt 2");
 	sList = new Array();
 	initmap();
-	new Settlement(100,5,5);
-	new Settlement(200,10,20);
 	new Settlement(200,100,200);
 	initScreen();
 	initSight();
@@ -83,27 +81,27 @@ function initScreen() {
 		var charCode = (typeof e.which == "number") ? e.which : e.keyCode;
 		switch(String.fromCharCode(charCode)){
 			case 'w':
-				stage.y-=5;
-				break;
+			stage.y-=5;
+			break;
 			case 'a':
-				stage.x-=5;
-				break;
+			stage.x-=5;
+			break;
 			case 's':
-				stage.y+=5;
-				break;
+			stage.y+=5;
+			break;
 			case 'd':
-				stage.x+=5;
-				break;
+			stage.x+=5;
+			break;
 			case 'q':
-				if(focus.movingPop > 0) {
-					focus.movingPop-=10
-				}; 
-				break;
+			if(focus.movingPop > 0) {
+				focus.movingPop-=10
+			}; 
+			break;
 			case 'e':
-				if(focus.movingPop < focus.population) {
-					focus.movingPop+=10
-				}; 
-				break;
+			if(focus.movingPop < focus.population) {
+				focus.movingPop+=10
+			}; 
+			break;
 		}
 		updatePopAdjuster()
 	};
@@ -112,6 +110,7 @@ function initScreen() {
 function refresh(event) {
 	for(i in sList) {
 		sList[i].migrateOnce(event.delta/10);
+		sList[i].updatePopTag();
 	}
 	stage.update(event);
 }
@@ -172,6 +171,16 @@ function stageEventHandler(event){
 	}	
 }
 
+//0 - % heat resistant
+//1 - % water needy
+//2 - % nutrient dependent
+var Traits = function(heat, water, nutrient){
+	this.list = new array();
+	array[0] = heat;
+	array[1] = water;
+	array[2] = nutrient;
+}
+
 function Settlement(pop, xCoord, yCoord, map,idealT,tempResist) {
 	this.population = pop;
 	this.movingPop = pop;
@@ -180,8 +189,6 @@ function Settlement(pop, xCoord, yCoord, map,idealT,tempResist) {
 	this.destinationX;
 	this.destinationY;
 	this.speed;
-	this.movingPop;
-	this.migrateOnce = migrateOnce;
 	this.addEventListener("click", mouseHandler);
 	this.graphics.beginStroke("black").beginFill("red").drawCircle(0,0,8);
 	stage.addChild(this);
@@ -194,7 +201,7 @@ Settlement.prototype.survival = function(map){
 	this.population = newPop;
 }
 
-var migrateOnce = function(speed){
+Settlement.prototype.migrateOnce = function(speed){
 	var totalMovement = speed;
 
 	if (this.destinationX != null){
@@ -247,8 +254,8 @@ function initPopAdjuster() {
 	popFrame.graphics.beginFill("black").drawRoundRect(-25,-50,50,30,5);
 	popText = new createjs.Text();
 	popAdjuster = new createjs.Container();
-	popAdjuster.addChild(popFrame);
-	stage.addChild(popAdjuster, popText);
+	popAdjuster.addChild(popFrame, popText);
+	stage.addChild(popAdjuster);
 }
 
 function aimPopAdjuster() {
@@ -264,9 +271,28 @@ function updatePopAdjuster(){
 		stage.removeChild(popAdjuster);
 		popAdjuster.removeChild(popText);
 		popText = new createjs.Text(focus.movingPop, "20px Arial", "white");
-		popText.x = -13;
+		popText.x = -17;
 		popText.y = -46;
 		popAdjuster.addChild(popText);
 		stage.addChild(popAdjuster);
 	}
+}
+
+Settlement.prototype.updatePopTag = function() {
+	if(stage.getChildIndex(this.popTag) == -1) {
+		var tagFrame = new createjs.Shape();
+		tagFrame.graphics.beginFill("black").drawRoundRect(-2,1,20,10,4);
+		this.popTag = new createjs.Container();
+		this.popTag.addChild(tagFrame);
+	}else{
+		stage.removeChild(this.popTag);
+		this.popTag.removeChild(this.tagText);
+		this.popTag.x = this.x;
+		this.popTag.y = this.y;
+	}
+	this.tagText = new createjs.Text(this.population, "9px Arial", "white");
+	this.tagText.x = 0;
+	this.tagText.y = 0;
+	this.popTag.addChild(this.tagText);
+	stage.addChild(this.popTag);
 }
