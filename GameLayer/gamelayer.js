@@ -92,19 +92,27 @@ function initScreen() {
 			case 'd':
 			stage.x+=5;
 			break;
-			case 'q':
-			if(focus.movingPop > 0) {
-				focus.movingPop-=10
-			}; 
-			break;
-			case 'e':
+		}
+		updatePopAdjuster();
+	};
+	var canvas = document.getElementById("screen");
+	canvas.addEventListener("mousewheel", MouseWheelHandler, false);
+	canvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+}
+
+function MouseWheelHandler(e) {
+	if(focus!=null){
+		if(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))>0){
 			if(focus.movingPop < focus.population) {
 				focus.movingPop+=10
 			}; 
-			break;
+		}else{
+			if(focus.movingPop > 0) {
+				focus.movingPop-=10
+			}
 		}
-		updatePopAdjuster()
-	};
+		updatePopAdjuster();		
+	}
 }
 
 function refresh(event) {
@@ -239,10 +247,12 @@ function initSight() {
 	sight = new createjs.Shape();
 	sight.graphics.beginFill("blue").drawCircle(0,0,9);
 	stage.addChild(sight);
+	sight.alpha = 0;
 	sight.addEventListener("click", mouseHandler);
 }
 
 function aimSight(xCoords, yCoords) {
+	sight.alpha=0.5;
 	sight.x = xCoords;
 	sight.y = yCoords;
 	stage.update();
@@ -254,12 +264,14 @@ function initPopAdjuster() {
 	popFrame.graphics.beginFill("black").drawRoundRect(-25,-50,50,30,5);
 	popText = new createjs.Text();
 	popAdjuster = new createjs.Container();
+	popAdjuster.alpha = 0;
 	popAdjuster.addChild(popFrame, popText);
 	stage.addChild(popAdjuster);
 }
 
 function aimPopAdjuster() {
 	if(focus != null) {
+		popAdjuster.alpha = 1;
 		popAdjuster.x = sight.x;
 		popAdjuster.y = sight.y;
 		stage.update();
