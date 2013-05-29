@@ -21,7 +21,9 @@ Map.prototype.generatePerlin = Map.prototype.generate = function()
 			var temp = PerlinNoise.noise( si, sj, this.seeds[0]);
 			var water = PerlinNoise.noise( si, sj, this.seeds[1]);
 			var nut = PerlinNoise.noise( si, sj, this.seeds[2]);
-			this.tiles[i][j] = new Tile({temperature:temp, water: water, nutrients:nut});
+			var passingIn = new Array(temp, water, nut);
+			this.tiles[i][j] = new Tile(passingIn);
+			//Tile({temperature:temp, water: water, nutrients:nut});
 		}
 	}
 }
@@ -39,12 +41,13 @@ Map.prototype.display = function()
 	}
 	console.log(disp);
 	return disp;
-};
+}
 
-function Tile(attributes,value)
+function Tile(attrib)
 {
-	this.attributes = attributes;
-	this.value = value;
+	this.attributes = new Array();
+	this.attributes = attrib;
+	// this.value = value;
 }
 
 function rgbToHex(r, g, b) {

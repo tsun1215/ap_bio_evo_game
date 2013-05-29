@@ -31,7 +31,7 @@ function initGame() {
 }
 
 function initmap(){
-	mapArr = new Map(300,150,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+	mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
 	mapArr.generate();
 	map = new createjs.Container();
 	//map.x = -(mapArr.cols*mapArr.tile_width)/2;
@@ -41,9 +41,10 @@ function initmap(){
 	{
 		for(var j=0; j<mapArr.cols; j++)
 		{
-			var temp = Math.floor(mapArr.tiles[i][j].attributes.temperature * 255);
-			var water = Math.floor(mapArr.tiles[i][j].attributes.water * 255);
-			var nut = Math.floor(mapArr.tiles[i][j].attributes.nutrients * 255);
+			var temp = Math.floor(mapArr.tiles[i][j].attributes[0] * 255);
+			var water = Math.floor(mapArr.tiles[i][j].attributes[1] * 255);
+			console.log(water);
+			var nut = Math.floor(mapArr.tiles[i][j].attributes[2] * 255);
 			var color;
 			if(water > 150)
 			{
@@ -246,7 +247,7 @@ function mouseHandler(event){
 			currentPop.y =50;
 			contentcontainer.children[1].addChild(currentPop);
 
-			resist = new createjs.Text("Temperature resistance: " + focus.traits.list[0], "12px Arial", "#000");
+			resist = new createjs.Text("Heat preference: " + focus.traits.list[0], "12px Arial", "#000");
 			resist.x = 10;
 			resist.y = 100;
 			contentcontainer.children[1].addChild(resist);
@@ -286,6 +287,9 @@ function Settlement(pop, xCoord, yCoord, amap) {
 	this.speed;
 	this.addEventListener("click", mouseHandler);
 	var color = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]))
+	var resetColor = function(){
+		color = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]));
+	}
 	this.graphics.beginStroke("black").beginFill(color).drawCircle(0,0,8);
 	stage.addChild(this);
 	sList.push(this);
@@ -293,51 +297,35 @@ function Settlement(pop, xCoord, yCoord, amap) {
 }
 
 Settlement.prototype.survival = function(){
-	// var ovRate = 1;
-	// for (var i = 0; i < this.traits.list.length; i++){
-	// 	ovRate = this.surviveFactor(i) * ovRate;
-	// }
-	// this.population = Math.floor(this.population*ovRate);
-	// this.movingPop = this.population;
-	var calcInt = interval;
-	var temp =  this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes.temperature * 100;
-	console.log(temp);
-	var domGrowthRate;
-	var recGrowthRate;
-	var calcDiff = ((Math.sqrt(Math.abs(50-temp))) + calcInt - 5)/ calcInt;
-	//console.log(calcDiff);
-	if (temp > 50){
-		domGrowthRate = this.traits.list[0] * calcDiff;
-		recGrowthRate = (1-this.traits.list[0]) * (1.9-calcDiff); 
+	var ovRate = 1;
+	for (var i = 0; i < this.traits.list.length; i++){
+		ovRate = this.surviveFactor(i) * ovRate;
 	}
-	if (temp < 50){
-		domGrowthRate = this.traits.list[0] * (1.9-calcDiff);
-		recGrowthRate = (1-this.traits.list[0]) * calcDiff; 
-	}
-	// // console.log(domGrowthRate);
-	// // console.log(recGrowthRate);
-
-	// // var domGrowthRate = this.traits.list[0] * (Math.sqrt(temp - 0) + calcInt - 5)/calcInt;
-	// // console.log(domGrowthRate);
-	// // var recGrowthRate = (1-this.traits.list[0]) * (Math.sqrt(100-temp) + calcInt - 5)/calcInt;
-	// // console.log(recGrowthRate);
-	// // var domDeathRate = this.traits.list[0] * (Math.sqrt(100 - temp) + calcInt - 5)/calcInt;
-	// // console.log(domDeathRate);
-	// // var recDeathRate = (1-this.traits.list[0]) * (Math.sqrt(temp-0) + calcInt - 5)/calcInt;
-	// // console.log(recDeathRate);
-	var totalGrowth = domGrowthRate + recGrowthRate;
-	// //console.log("totalGrowth = " + totalGrowth);
-
-	// // var totalDeath = domDeathRate + recDeathRate;
-	// // console.log("totalDeath = " + totalDeath);
-
-	// // var totalChangeRate = totalGrowth - totalDeath;
-	// // console.log("totalChange = " + totalChangeRate);
-
-	this.population = Math.floor(this.population*totalGrowth);
-	this.traits.list[0] = domGrowthRate/(domGrowthRate + recGrowthRate);
-	console.log (this.traits.list[0]);
+	this.population = Math.floor(this.population*ovRate);
 	this.movingPop = this.population;
+	// var calcInt = interval;
+	// console.log(this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes);
+	// var temp =  this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes[0] * 100;
+	// console.log(temp);
+	// var domGrowthRate;
+	// var recGrowthRate;
+	// var calcDiff = ((Math.sqrt(Math.abs(50-temp))) + calcInt - 5)/ calcInt;
+	
+	// if (temp > 50){
+	// 	domGrowthRate = this.traits.list[0] * calcDiff;
+	// 	recGrowthRate = (1-this.traits.list[0]) * (1.9-calcDiff); 
+	// }
+	// if (temp < 50){
+	// 	domGrowthRate = this.traits.list[0] * (1.9-calcDiff);
+	// 	recGrowthRate = (1-this.traits.list[0]) * calcDiff; 
+	// }
+ 
+	// var totalGrowth = domGrowthRate + recGrowthRate;
+
+	// this.population = Math.floor(this.population*totalGrowth);
+	// this.traits.list[0] = domGrowthRate/(domGrowthRate + recGrowthRate);
+	// // console.log (this.traits.list[0]);
+	// this.movingPop = this.population;
 	
 
 	// this.traits[0] = (domGrowthRate - domDeathRate)/(recGrowthRate - recDeathRate);
@@ -350,27 +338,27 @@ Settlement.prototype.survival = function(){
 	// this.population = newPop;
 }
 
-// Settlement.prototype.surviveFactor = function(factor){
-// 	var calcInt = interval;
-// 	var fact =  this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes.factor * 100;
-// 	var domGrowthRate;
-// 	var recGrowthRate;
-// 	var calcDiff = ((Math.sqrt(Math.abs(50-fact))) + calcInt - 5)/ calcInt;
-// 	//console.log(calcDiff);
-// 	if (fact > 50){
-// 		domGrowthRate = this.traits.list[factor] * calcDiff;
-// 		recGrowthRate = (1-this.traits.list[factor]) * (1.9-calcDiff); 
-// 	}
-// 	if (fact < 50){
-// 		domGrowthRate = this.traits.list[factor] * (1.9-calcDiff);
-// 		recGrowthRate = (1-this.traits.list[factor]) * calcDiff; 
-// 	}
-// 	this.traits.list[factor] = domGrowthRate/(domGrowthRate + recGrowthRate);
-// 	var totalGrowth = domGrowthRate + recGrowthRate;
-// 	return totalGrowth;
-// 	// this.population = Math.floor(this.population*totalGrowth);
+Settlement.prototype.surviveFactor = function(factor){
+	var calcInt = interval;
+	var fact =  this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes[factor] * 100;
+	var domGrowthRate;
+	var recGrowthRate;
+	var calcDiff = ((Math.sqrt(Math.abs(50-fact))) + calcInt - 5)/ calcInt;
+	//console.log(calcDiff);
+	if (fact > 50){
+		domGrowthRate = this.traits.list[factor] * calcDiff;
+		recGrowthRate = (1-this.traits.list[factor]) * (1.9-calcDiff); 
+	}
+	if (fact < 50){
+		domGrowthRate = this.traits.list[factor] * (1.9-calcDiff);
+		recGrowthRate = (1-this.traits.list[factor]) * calcDiff; 
+	}
+	this.traits.list[factor] = domGrowthRate/(domGrowthRate + recGrowthRate);
+	var totalGrowth = domGrowthRate + recGrowthRate;
+	return totalGrowth;
+	// this.population = Math.floor(this.population*totalGrowth);
 	
-// }
+}
 
 Settlement.prototype.migrateOnce = function(speed){
 	var totalMovement = speed;
