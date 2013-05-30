@@ -11,6 +11,8 @@ var currentPop;
 var currentName;
 var resist;
 var mapArr;
+var arbKFactor = 1000;
+var arbRValue = .5;
 
 Settlement.prototype = new createjs.Shape();
 Settlement.prototype.constructor = Settlement;
@@ -298,10 +300,13 @@ function Settlement(pop, xCoord, yCoord, amap) {
 
 Settlement.prototype.survival = function(){
 	var ovRate = 1;
+	var k = arbKFactor;
 	for (var i = 0; i < this.traits.list.length; i++){
 		ovRate = this.surviveFactor(i) * ovRate;
 	}
-	this.population = Math.floor(this.population*ovRate);
+	k = k * ovRate;
+	this.population = this.population + Math.floor(arbRValue * this.population * (1 - (this.population/k)));
+	//Math.floor(this.population*ovRate);
 	this.movingPop = this.population;
 	// var calcInt = interval;
 	// console.log(this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes);
@@ -339,11 +344,12 @@ Settlement.prototype.survival = function(){
 }
 
 Settlement.prototype.surviveFactor = function(factor){
-	var calcInt = interval;
+	
 	var fact =  this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes[factor] * 100;
+	var calcInt = fact * 2;
 	var domGrowthRate;
 	var recGrowthRate;
-	var calcDiff = ((Math.sqrt(Math.abs(50-fact))) + calcInt - 5)/ calcInt;
+	var calcDiff = (fact - 50 + calcInt)/ calcInt;
 	//console.log(calcDiff);
 	if (fact > 50){
 		domGrowthRate = this.traits.list[factor] * calcDiff;
