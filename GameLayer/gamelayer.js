@@ -24,18 +24,20 @@ function initGame() {
 	sList = new Array();
 	initUI();
 	initmap();
-	new Settlement(400,400,400, mapArr);
-	new Settlement(50,300,430, mapArr);
-	new Settlement(243,444,333, mapArr);
-	stage.x = -100;
-	stage.y = -100;
+	new Settlement(43298,2300,2000, mapArr);
+	new Settlement(3145,2400,2300, mapArr);
+	new Settlement(13463,2440,2330, mapArr);
+	stage.scaleX*=1.3;
+	stage.scaleY*=1.3;
+	stage.x = -2300;
+	stage.y = -2550;
 	initScreen();
 	initSight();
 	initPopAdjuster();
 }
 
 function initmap(){
-	mapArr = new Map(150,150,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+	mapArr = new Map(150,150,25, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
 	mapArr.generate();
 	map = new createjs.Container();
 	//map.x = -(mapArr.cols*mapArr.tile_width)/2;
@@ -179,7 +181,7 @@ function MouseWheelHandler(e) {
 }
 
 function refresh(event) {
-	if(createjs.Ticker.getTicks() % 90 == 0){
+	if(createjs.Ticker.getTicks() % 50 == 0){
 		for(i in sList){
 			sList[i].survival();
 		}
@@ -251,7 +253,7 @@ function mouseHandler(event){
 			currentPop.y =50;
 			contentcontainer.children[1].addChild(currentPop);
 
-			resist = new createjs.Text("Temperature resistance: " + focus.traits.list[0], "12px Arial", "#000");
+			resist = new createjs.Text("Heat Preference: " + focus.traits.list[0], "12px Arial", "#000");
 			resist.x = 10;
 			resist.y = 100;
 			contentcontainer.children[1].addChild(resist);
@@ -305,7 +307,7 @@ Settlement.prototype.survival = function(){
 	// this.population = Math.floor(this.population*ovRate);
 	// this.movingPop = this.population;
 	var calcInt = interval;
-	var temp =  this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes.temperature * 100;
+	var temp =  this.map.tiles[Math.floor(this.x / this.map.tile_width)][Math.floor(this.y / this.map.tile_width)].attributes.temperature * 100;
 	console.log(temp);
 	var domGrowthRate;
 	var recGrowthRate;
@@ -430,7 +432,7 @@ function aimSight(xCoords, yCoords) {
 
 function initPopAdjuster() {
 	var popFrame = new createjs.Shape();
-	popFrame.graphics.beginFill("black").drawRoundRect(-25,-50,50,30,5);
+	popFrame.graphics.beginFill("black").drawRoundRect(-25,-50,70,30,5);
 	popText = new createjs.Text();
 	popAdjuster = new createjs.Container();
 	popAdjuster.alpha = 0;
@@ -462,7 +464,7 @@ function updatePopAdjuster(){
 Settlement.prototype.updatePopTag = function() {
 	if(stage.getChildIndex(this.popTag) == -1) {
 		var tagFrame = new createjs.Shape();
-		tagFrame.graphics.beginFill("black").drawRoundRect(-2,1,20,10,4);
+		tagFrame.graphics.beginFill("black").drawRoundRect(-2,1,50,10,4);
 		this.popTag = new createjs.Container();
 		this.popTag.addChild(tagFrame);
 	}else{
