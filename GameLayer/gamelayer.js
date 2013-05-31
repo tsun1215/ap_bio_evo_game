@@ -21,8 +21,6 @@ function initGame() {
 	stage = new createjs.Stage("screen");
 	uiStage = new createjs.Stage("uiStage");
 	stage.enableMouseOver(10);
-	console.log("chkpt 1");
-	console.log("chkpt 2");
 	sList = new Array();
 	initUI();
 	initmap();
@@ -45,7 +43,6 @@ function initmap(){
 		{
 			var temp = Math.floor(mapArr.tiles[i][j].attributes[0] * 255);
 			var water = Math.floor(mapArr.tiles[i][j].attributes[1] * 255);
-			console.log(water);
 			var nut = Math.floor(mapArr.tiles[i][j].attributes[2] * 255);
 			var color;
 			if(water > 150)
@@ -132,7 +129,6 @@ function initScreen() {
 				e.nativeEvent.preventDefault();
 				stage.x = e.stageX - x;
 				stage.y = e.stageY - y;
-				console.log('up');
 			}
 			stage.addEventListener("stagemousemove", move);
 			function up(e)
@@ -165,7 +161,6 @@ function MouseWheelHandler(e) {
 		if(e.wheelDelta != 0)
 		{
 			var loc = stage.globalToLocal(e.clientX, e.clientY);
-			console.log(loc);
 			if(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))>0){
 				var zoom = 1.05/1;
 			}else{
@@ -181,6 +176,7 @@ function refresh(event) {
 	if(createjs.Ticker.getTicks() % 90 == 0){
 		for(i in sList){
 			sList[i].survival();
+			sList[i].resetColor();
 		}
 	}
 	for(i in sList) {
@@ -199,10 +195,7 @@ function refresh(event) {
 // 	}
 // }
 function mouseHandler(event){
-	//console.log("SOME EVENT HAPPENED");
-	console.log("SOME EVENT HAPPENED");
 	if (event.type == "click" && event.nativeEvent.which === 1){
-		console.log(sight.x);
 		if (focus != null){
 			//console.log("Secondclicked");
 			//console.log(focus.movingPop);
@@ -283,19 +276,24 @@ function Settlement(pop, xCoord, yCoord, amap) {
 	this.movingPop = pop;
 	this.x = xCoord;
 	this.y = yCoord;
-	this.traits = new TraitsList(.15, .35, .7);
+	this.traits = new TraitsList(.15, .25, .85);
 	this.destinationX;
 	this.destinationY;
 	this.speed;
 	this.addEventListener("click", mouseHandler);
-	var color = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]))
-	var resetColor = function(){
-		color = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]));
-	}
-	this.graphics.beginStroke("black").beginFill(color).drawCircle(0,0,8);
+	this.color = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]))
+	this.graphics.beginStroke("black").beginFill(this.color).drawCircle(0,0,8);
+	console.log(this.color);
 	stage.addChild(this);
 	sList.push(this);
 	this.map = amap;
+}
+
+Settlement.prototype.resetColor = function(){
+		var colorChange = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]));
+		console.log(colorChange);
+		this.color = colorChange
+		this.graphics.beginStroke("black").beginFill(colorChange).drawCircle(0,0,8);
 }
 
 Settlement.prototype.survival = function(){
@@ -346,19 +344,20 @@ Settlement.prototype.survival = function(){
 Settlement.prototype.surviveFactor = function(factor){
 	
 	var fact =  this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes[factor] * 100;
-	var calcInt = fact * 2;
+	// var calcInt = fact * 2;
+	console.log(fact);
 	var domGrowthRate;
 	var recGrowthRate;
-	var calcDiff = (fact - 50 + calcInt)/ calcInt;
+	var calcDiff = (fact/50);
 	//console.log(calcDiff);
-	if (fact > 50){
+	//if (fact > 50){
 		domGrowthRate = this.traits.list[factor] * calcDiff;
 		recGrowthRate = (1-this.traits.list[factor]) * (1.9-calcDiff); 
-	}
-	if (fact < 50){
-		domGrowthRate = this.traits.list[factor] * (1.9-calcDiff);
-		recGrowthRate = (1-this.traits.list[factor]) * calcDiff; 
-	}
+	//}
+	// if (fact < 50){
+	// 	domGrowthRate = this.traits.list[factor] * (-calcDiff);
+	// 	recGrowthRate = (1-this.traits.list[factor]) * calcDiff; 
+	// }
 	this.traits.list[factor] = domGrowthRate/(domGrowthRate + recGrowthRate);
 	var totalGrowth = domGrowthRate + recGrowthRate;
 	return totalGrowth;
