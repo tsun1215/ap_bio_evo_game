@@ -194,12 +194,40 @@ function refresh(event) {
 // 		sList[i].survival();
 // 	}
 // }
+
+function settMoveHandler(event){
+	if (event.type == "dblclick" && event.nativeEvent.which === 1){
+		if (focus == null){
+			focus = event.target;
+			//console.log(focus);
+			aimSight(event.stageX, event.stageY);
+			sight.alpha = .5;
+			popAdjuster.alpha = 1;
+			updateUI(focus);
+			stage.addEventListener("stagemousemove", stageEventHandler);
+			stage.addEventListener("click", stageEventHandler);
+		}
+	}
+}
+
 function mouseHandler(event){
 	if (event.type == "click" && event.nativeEvent.which === 1){
+		updateUI(event.target);
+	}
+}
+
+function stageEventHandler(event){
+	//console.log("stageevent called");
+	if (event.type == "stagemousemove"){
+		//console.log("stagemousemoved");
+		var loc = stage.globalToLocal(event.stageX, event.stageY);
+		aimSight(loc.x, loc.y);
+		aimPopAdjuster();
+		updatePopAdjuster();
+	}
+	if (event.type == "click"){
 		if (focus != null){
-			//console.log("Secondclicked");
-			//console.log(focus.movingPop);
-			//console.log(sight.alpha);
+			// Moves the selected population on the second click
 			if (focus.movingPop > 0){
 				//console.log("focus.movingPop > 0");
 				var loc = stage.globalToLocal(event.stageX, event.stageY);
@@ -212,9 +240,9 @@ function mouseHandler(event){
 					focus.destinationX = loc.x;
 					focus.destinationY = loc.y;
 				} 
-			} else {
+			} else {	
 				sight.alpha = 0;
-				popAdjuster.alpha = 0
+				popAdjuster.alpha = 0;
 			}
 			// sight.alpha = 0;
 			// popAdjuster.alpha = 0;
@@ -223,44 +251,12 @@ function mouseHandler(event){
 			focus = null;
 			// stage.removeEventListener('click', stageEventHandler);
 			stage.removeEventListener('stagemousemove', stageEventHandler);
+			stage.removeEventListener('click', stageEventHandler);
 			contentcontainer.children[1].removeAllChildren();
 		} else {
-			focus = event.target;
-			//console.log(focus);
-			aimSight(event.stageX, event.stageY);
-			sight.alpha = .5;
-			popAdjuster.alpha = 1;
-			//console.log(sight.alpha);
-			//console.log("first clicked");
-			//console.log(focus);
-			currentName = new createjs.Text("Current Population", "24px Arial", "#000");
-			currentName.x = 175;
-			currentName.y = 10;
-			contentcontainer.children[1].addChild(currentName);
-
-			currentPop = new createjs.Text("Population size: " + focus.population, "12px Arial", "#000");
-			currentPop.x = 10;
-			currentPop.y =50;
-			contentcontainer.children[1].addChild(currentPop);
-
-			resist = new createjs.Text("Heat preference: " + focus.traits.list[0], "12px Arial", "#000");
-			resist.x = 10;
-			resist.y = 100;
-			contentcontainer.children[1].addChild(resist);
-			stage.addEventListener("stagemousemove", stageEventHandler);
+			contentcontainer.children[1].removeAllChildren();
 		}
 	}
-}
-
-function stageEventHandler(event){
-	//console.log("stageevent called");
-	if (event.type == "stagemousemove"){
-		//console.log("stagemousemoved");
-		var loc = stage.globalToLocal(event.stageX, event.stageY);
-		aimSight(loc.x, loc.y);
-		aimPopAdjuster();
-		updatePopAdjuster();
-	}	
 }
 // 0 = % heat pref
 // 1 = % water needy
@@ -282,6 +278,7 @@ function Settlement(pop, xCoord, yCoord, amap) {
 	this.destinationY;
 	this.speed;
 	this.addEventListener("click", mouseHandler);
+	this.addEventListener("dblclick", settMoveHandler);
 	this.color = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]))
 	this.graphics.beginStroke("black").beginFill(this.color).drawCircle(0,0,8);
 	console.log(this.color);

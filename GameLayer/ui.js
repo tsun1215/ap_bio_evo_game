@@ -27,3 +27,21 @@ function initUI(){
 
 	uiStage.update();
 }
+
+function updateUI(focus){
+	contentcontainer.children[1].removeAllChildren();
+	currentName = new createjs.Text("Current Population", "24px Arial", "#000");
+	currentName.x = 175;
+	currentName.y = 10;
+	contentcontainer.children[1].addChild(currentName);
+
+	currentPop = new createjs.Text("Population size: " + focus.population, "12px Arial", "#000");
+	currentPop.x = 10;
+	currentPop.y =50;
+	contentcontainer.children[1].addChild(currentPop);
+
+	resist = new createjs.Text("Heat preference: " + focus.traits.list[0], "12px Arial", "#000");
+	resist.x = 10;
+	resist.y = 100;
+	contentcontainer.children[1].addChild(resist);
+}
