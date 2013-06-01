@@ -223,6 +223,7 @@ function mouseHandler(event){
 			focus = null;
 			// stage.removeEventListener('click', stageEventHandler);
 			stage.removeEventListener('stagemousemove', stageEventHandler);
+			contentcontainer.children[1].removeAllChildren();
 		} else {
 			focus = event.target;
 			//console.log(focus);
