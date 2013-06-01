@@ -3,6 +3,7 @@ var stage;
 var interval = 25;
 var focus;
 var focus = null;
+var selectedPop = null;
 var sight;
 var popAdjuster;
 var popText;
@@ -178,6 +179,9 @@ function refresh(event) {
 			sList[i].survival();
 			sList[i].resetColor();
 		}
+		if(selectedPop){
+			updateUI(selectedPop);
+		}
 	}
 	for(i in sList) {
 		sList[i].migrateOnce(event.delta/10);
@@ -212,7 +216,8 @@ function settMoveHandler(event){
 
 function mouseHandler(event){
 	if (event.type == "click" && event.nativeEvent.which === 1){
-		updateUI(event.target);
+		selectedPop = event.target;
+		updateUI(selectedPop);
 	}
 }
 
