@@ -275,6 +275,7 @@ var TraitsList = function(heat, water, nutrient){
 
 function Settlement(pop, xCoord, yCoord, amap) {
 	this.population = pop;
+	this.previousPop = pop;
 	this.movingPop = pop;
 	this.x = xCoord;
 	this.y = yCoord;
@@ -293,10 +294,10 @@ function Settlement(pop, xCoord, yCoord, amap) {
 }
 
 Settlement.prototype.resetColor = function(){
-		var colorChange = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]));
-		console.log(colorChange);
-		this.color = colorChange
-		this.graphics.beginStroke("black").beginFill(colorChange).drawCircle(0,0,8);
+	var colorChange = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]));
+	console.log(colorChange);
+	this.color = colorChange
+	this.graphics.beginStroke("black").beginFill(colorChange).drawCircle(0,0,8);
 }
 
 Settlement.prototype.survival = function(){
@@ -306,6 +307,7 @@ Settlement.prototype.survival = function(){
 		ovRate = this.surviveFactor(i) * ovRate;
 	}
 	k = k * ovRate;
+	this.previousPop = this.population;
 	this.population = this.population + Math.floor(arbRValue * this.population * (1 - (this.population/k)));
 	//Math.floor(this.population*ovRate);
 	this.movingPop = this.population;
@@ -325,7 +327,7 @@ Settlement.prototype.survival = function(){
 	// 	domGrowthRate = this.traits.list[0] * (1.9-calcDiff);
 	// 	recGrowthRate = (1-this.traits.list[0]) * calcDiff; 
 	// }
- 
+
 	// var totalGrowth = domGrowthRate + recGrowthRate;
 
 	// this.population = Math.floor(this.population*totalGrowth);
@@ -421,7 +423,7 @@ function aimSight(xCoords, yCoords) {
 
 function initPopAdjuster() {
 	var popFrame = new createjs.Shape();
-	popFrame.graphics.beginFill("black").drawRoundRect(-25,-50,50,30,5);
+	popFrame.graphics.beginFill("black").drawRoundRect(-30,-50,60,30,5);
 	popText = new createjs.Text();
 	popAdjuster = new createjs.Container();
 	popAdjuster.alpha = 0;
@@ -443,8 +445,13 @@ function updatePopAdjuster(){
 		stage.removeChild(popAdjuster);
 		popAdjuster.removeChild(popText);
 		popText = new createjs.Text(focus.movingPop, "20px Arial", "white");
-		popText.x = -17;
 		popText.y = -46;
+		switch(Math.floor(Math.log(focus.movingPop)/Math.LN10)+1) {
+			case 1: popText.x = -5; break;
+			case 2: popText.x = -11; break;
+			case 3: popText.x = -17; break;
+			case 4: popText.x = -23; break;
+		}
 		popAdjuster.addChild(popText);
 		stage.addChild(popAdjuster);
 	}
@@ -452,19 +459,30 @@ function updatePopAdjuster(){
 
 Settlement.prototype.updatePopTag = function() {
 	if(stage.getChildIndex(this.popTag) == -1) {
-		var tagFrame = new createjs.Shape();
-		tagFrame.graphics.beginFill("black").drawRoundRect(-2,1,20,10,4);
+		this.tagFrame = new createjs.Shape();
+		this.tagFrame.graphics.beginFill("black").drawRoundRect(-2,1,19,10,4);
 		this.popTag = new createjs.Container();
-		this.popTag.addChild(tagFrame);
+		this.popTag.addChild(this.tagFrame);
 	}else{
 		stage.removeChild(this.popTag);
 		this.popTag.removeChild(this.tagText);
 		this.popTag.x = this.x;
 		this.popTag.y = this.y;
+
+		if(Math.floor(Math.log(this.previousPop)/Math.LN10) != Math.floor(Math.log(this.population)/Math.LN10)) {
+			this.popTag.removeChild(this.tagFrame);
+			this.tagFrame = new createjs.Shape();
+			this.tagFrame.graphics.beginFill("black");
+			switch(Math.floor(Math.log(this.population)/Math.LN10+1)){
+				case 1: this.tagFrame.graphics.drawRoundRect(-2,1,9,10,4); break;
+				case 2: this.tagFrame.graphics.drawRoundRect(-2,1,14,10,4); break;
+				case 3: this.tagFrame.graphics.drawRoundRect(-2,1,19,10,4); break;
+				case 4: this.tagFrame.graphics.drawRoundRect(-2,1,24,10,4); break;
+			}
+			this.popTag.addChild(this.tagFrame);
+		}
 	}
 	this.tagText = new createjs.Text(this.population, "9px Arial", "white");
-	this.tagText.x = 0;
-	this.tagText.y = 0;
 	this.popTag.addChild(this.tagText);
 	stage.addChild(this.popTag);
 }
