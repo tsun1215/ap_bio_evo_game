@@ -90,25 +90,6 @@ function initmap(){
 function initScreen() {
 	createjs.Ticker.addEventListener("tick", refresh);
 	createjs.Ticker.setFPS(30);
-	document.onkeypress = function(e) {
-		e = e || window.event;
-		var charCode = (typeof e.which == "number") ? e.which : e.keyCode;
-		switch(String.fromCharCode(charCode)){
-			case 'w':
-			stage.y-=5;
-			break;
-			case 'a':
-			stage.x-=5;
-			break;
-			case 's':
-			stage.y+=5;
-			break;
-			case 'd':
-			stage.x+=5;
-			break;
-		}
-		updatePopAdjuster();
-	};
 	var canvas = document.getElementById("screen");
 	canvas.addEventListener("mousewheel", MouseWheelHandler, false);
 	canvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
