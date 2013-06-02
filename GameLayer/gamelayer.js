@@ -297,7 +297,7 @@ Settlement.prototype.resetColor = function(){
 	var colorChange = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]));
 	console.log(colorChange);
 	this.color = colorChange
-	this.graphics.beginStroke("black").beginFill(colorChange).drawCircle(0,0,8);
+	this.graphics.clear().beginStroke("black").beginFill(colorChange).drawCircle(0,0,8);
 }
 
 Settlement.prototype.survival = function(){
@@ -423,7 +423,7 @@ function aimSight(xCoords, yCoords) {
 
 function initPopAdjuster() {
 	var popFrame = new createjs.Shape();
-	popFrame.graphics.beginFill("black").drawRoundRect(-30,-50,60,30,5);
+	popFrame.graphics.clear().beginFill("black").drawRoundRect(-30,-50,60,30,5);
 	popText = new createjs.Text();
 	popAdjuster = new createjs.Container();
 	popAdjuster.alpha = 0;
@@ -460,7 +460,7 @@ function updatePopAdjuster(){
 Settlement.prototype.updatePopTag = function() {
 	if(stage.getChildIndex(this.popTag) == -1) {
 		this.tagFrame = new createjs.Shape();
-		this.tagFrame.graphics.beginFill("black").drawRoundRect(-2,1,19,10,4);
+		this.tagFrame.graphics.clear().beginFill("black").drawRoundRect(-2,1,19,10,4);
 		this.popTag = new createjs.Container();
 		this.popTag.addChild(this.tagFrame);
 	}else{
@@ -472,7 +472,7 @@ Settlement.prototype.updatePopTag = function() {
 		if(Math.floor(Math.log(this.previousPop)/Math.LN10) != Math.floor(Math.log(this.population)/Math.LN10)) {
 			this.popTag.removeChild(this.tagFrame);
 			this.tagFrame = new createjs.Shape();
-			this.tagFrame.graphics.beginFill("black");
+			this.tagFrame.graphics.clear().beginFill("black");
 			switch(Math.floor(Math.log(this.population)/Math.LN10+1)){
 				case 1: this.tagFrame.graphics.drawRoundRect(-2,1,9,10,4); break;
 				case 2: this.tagFrame.graphics.drawRoundRect(-2,1,14,10,4); break;
