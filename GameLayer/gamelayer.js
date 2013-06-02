@@ -1,7 +1,6 @@
 var sList;
 var stage;
 var interval = 25;
-var focus;
 var focus = null;
 var selectedPop = null;
 var sight;
@@ -35,8 +34,6 @@ function initmap(){
 	mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
 	mapArr.generate();
 	map = new createjs.Container();
-	//map.x = -(mapArr.cols*mapArr.tile_width)/2;
-	//map.y = -(mapArr.rows*mapArr.tile_width)/2;
 	stage.addChild(map);
 	for(var i = 0; i<mapArr.rows; i++)
 	{
@@ -80,10 +77,6 @@ function initmap(){
 		}
 		map.cache(0,0,mapArr.rows*mapArr.tile_width,mapArr.cols*mapArr.tile_width);
 	}
-	// var minimap = map.clone();
-	// minimap.scaleX = .7;
-	// minimap.scaleY = .7;
-	// contentcontainer.children[0].addChild(minimap);
 	stage.update();
 }
 
@@ -97,32 +90,6 @@ function initScreen() {
 		if (e.button === 2) {
 			e.preventDefault();
 			return false;
-		}
-	});
-	stage.addEventListener("stagemousedown", function(e)
-	{
-		e.nativeEvent.preventDefault();
-		if(e.nativeEvent.which === 3)
-		{
-			var x = e.stageX - stage.x;
-			var y = e.stageY - stage.y;
-			function move(e)
-			{
-				e.nativeEvent.preventDefault();
-				stage.x = e.stageX - x;
-				stage.y = e.stageY - y;
-			}
-			stage.addEventListener("stagemousemove", move);
-			function up(e)
-			{
-				if(e.nativeEvent.which === 3)
-				{
-					e.nativeEvent.preventDefault();
-					stage.removeEventListener("stagemousemove", move);
-					stage.removeEventListener("stagemouseup", up);
-				}
-			}
-			stage.addEventListener("stagemouseup", up);
 		}
 	});			
 }
@@ -174,76 +141,16 @@ function refresh(event) {
 	uiStage.update(event);
 }
 
-// function survive(event) {
-// 	for(i in sList) {
-// 		sList[i].survival();
-// 	}
-// }
-
-function settMoveHandler(event){
-	if (event.type == "dblclick" && event.nativeEvent.which === 1){
-		if (focus == null){
-			focus = event.target;
-			//console.log(focus);
-			aimSight(event.stageX, event.stageY);
-			sight.alpha = .5;
-			popAdjuster.alpha = 1;
-			updateUI(focus);
-			stage.addEventListener("stagemousemove", stageEventHandler);
-			stage.addEventListener("click", stageEventHandler);
-		}
-	}
-}
-
 function mouseHandler(event){
-	if (event.type == "click" && event.nativeEvent.which === 1){
+	if (event.nativeEvent.which === 1){
+		if(selectedPop != null) selectedPop.selected = false;
 		selectedPop = event.target;
+		selectedPop.selected = true;
+		selectedPop.graphics.beginStroke(this.selected ? "red" : "black").beginFill(selectedPop.color).drawCircle(0,0,8);
 		updateUI(selectedPop);
 	}
 }
 
-function stageEventHandler(event){
-	//console.log("stageevent called");
-	if (event.type == "stagemousemove"){
-		//console.log("stagemousemoved");
-		var loc = stage.globalToLocal(event.stageX, event.stageY);
-		aimSight(loc.x, loc.y);
-		aimPopAdjuster();
-		updatePopAdjuster();
-	}
-	if (event.type == "click"){
-		if (focus != null){
-			// Moves the selected population on the second click
-			if (focus.movingPop > 0){
-				//console.log("focus.movingPop > 0");
-				var loc = stage.globalToLocal(event.stageX, event.stageY);
-				if (focus.movingPop < focus.population){	
-					var settle = new Settlement(focus.movingPop, focus.x, focus.y, focus.map);
-					settle.destinationX = loc.x;
-					settle.destinationY = loc.y;
-					focus.population = focus.population - focus.movingPop;
-				} else {
-					focus.destinationX = loc.x;
-					focus.destinationY = loc.y;
-				} 
-			} else {	
-				sight.alpha = 0;
-				popAdjuster.alpha = 0;
-			}
-			// sight.alpha = 0;
-			// popAdjuster.alpha = 0;
-			focus.movingPop = focus.population;
-			focus.checkMerge(event.stageX, event.stageY);
-			focus = null;
-			// stage.removeEventListener('click', stageEventHandler);
-			stage.removeEventListener('stagemousemove', stageEventHandler);
-			stage.removeEventListener('click', stageEventHandler);
-			contentcontainer.children[1].removeAllChildren();
-		} else {
-			contentcontainer.children[1].removeAllChildren();
-		}
-	}
-}
 // 0 = % heat pref
 // 1 = % water needy
 // 2 = % nutrient dependent
@@ -258,6 +165,7 @@ function Settlement(pop, xCoord, yCoord, amap) {
 	this.population = pop;
 	this.previousPop = pop;
 	this.movingPop = pop;
+	this.selected = false;
 	this.x = xCoord;
 	this.y = yCoord;
 	this.traits = new TraitsList(.15, .25, .85);
@@ -265,10 +173,8 @@ function Settlement(pop, xCoord, yCoord, amap) {
 	this.destinationY;
 	this.speed;
 	this.addEventListener("click", mouseHandler);
-	this.addEventListener("dblclick", settMoveHandler);
 	this.color = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]))
 	this.graphics.beginStroke("black").beginFill(this.color).drawCircle(0,0,8);
-	console.log(this.color);
 	stage.addChild(this);
 	sList.push(this);
 	this.map = amap;
@@ -276,9 +182,8 @@ function Settlement(pop, xCoord, yCoord, amap) {
 
 Settlement.prototype.resetColor = function(){
 	var colorChange = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]));
-	console.log(colorChange);
 	this.color = colorChange
-	this.graphics.beginStroke("black").beginFill(colorChange).drawCircle(0,0,8);
+	this.graphics.beginStroke(this.selected ? "red" : "black").beginFill(colorChange).drawCircle(0,0,8);
 }
 
 Settlement.prototype.survival = function(){
@@ -290,65 +195,20 @@ Settlement.prototype.survival = function(){
 	k = k * ovRate;
 	this.previousPop = this.population;
 	this.population = this.population + Math.floor(arbRValue * this.population * (1 - (this.population/k)));
-	//Math.floor(this.population*ovRate);
 	this.movingPop = this.population;
-	// var calcInt = interval;
-	// console.log(this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes);
-	// var temp =  this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes[0] * 100;
-	// console.log(temp);
-	// var domGrowthRate;
-	// var recGrowthRate;
-	// var calcDiff = ((Math.sqrt(Math.abs(50-temp))) + calcInt - 5)/ calcInt;
-	
-	// if (temp > 50){
-	// 	domGrowthRate = this.traits.list[0] * calcDiff;
-	// 	recGrowthRate = (1-this.traits.list[0]) * (1.9-calcDiff); 
-	// }
-	// if (temp < 50){
-	// 	domGrowthRate = this.traits.list[0] * (1.9-calcDiff);
-	// 	recGrowthRate = (1-this.traits.list[0]) * calcDiff; 
-	// }
-
-	// var totalGrowth = domGrowthRate + recGrowthRate;
-
-	// this.population = Math.floor(this.population*totalGrowth);
-	// this.traits.list[0] = domGrowthRate/(domGrowthRate + recGrowthRate);
-	// // console.log (this.traits.list[0]);
-	// this.movingPop = this.population;
-	
-
-	// this.traits[0] = (domGrowthRate - domDeathRate)/(recGrowthRate - recDeathRate);
-
-	// if (Math.floor(this.map.tiles[this.xCoord / 16][this.yCoord / 16].temperature) > 50){
-
-	// }
-	// var netGrowth = (this.tempResist - Math.abs(Math.floor((this.map.tiles[this.xCoord / 16][this.yCoord / 16].temperature) * 100))) / this.tempResist;
-	// var newPop = netGrowth * interval + this.population;
-	// this.population = newPop;
 }
 
 Settlement.prototype.surviveFactor = function(factor){
 	
 	var fact =  this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes[factor] * 100;
-	// var calcInt = fact * 2;
-	console.log(fact);
 	var domGrowthRate;
 	var recGrowthRate;
 	var calcDiff = (fact/50);
-	//console.log(calcDiff);
-	//if (fact > 50){
-		domGrowthRate = this.traits.list[factor] * calcDiff;
-		recGrowthRate = (1-this.traits.list[factor]) * (1.9-calcDiff); 
-	//}
-	// if (fact < 50){
-	// 	domGrowthRate = this.traits.list[factor] * (-calcDiff);
-	// 	recGrowthRate = (1-this.traits.list[factor]) * calcDiff; 
-	// }
+	domGrowthRate = this.traits.list[factor] * calcDiff;
+	recGrowthRate = (1-this.traits.list[factor]) * (1.9-calcDiff); 
 	this.traits.list[factor] = domGrowthRate/(domGrowthRate + recGrowthRate);
 	var totalGrowth = domGrowthRate + recGrowthRate;
 	return totalGrowth;
-	// this.population = Math.floor(this.population*totalGrowth);
-	
 }
 
 Settlement.prototype.migrateOnce = function(speed){
