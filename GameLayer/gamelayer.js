@@ -41,7 +41,7 @@ function initMap()
 	var loading = document.createElement('div');
 	//Show something loady
 	loading.innerHTML = "LOADING LOL";
-	loading.setAttribute("style","z-index:50");
+	loading.setAttribute("style","position:absolute");
 	document.body.appendChild(loading);
 	var generator = setInterval(function(){
 		if(mapReady())
