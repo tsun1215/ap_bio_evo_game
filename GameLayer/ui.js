@@ -40,8 +40,18 @@ function updateUI(focus){
 	currentPop.y =50;
 	contentcontainer.children[1].addChild(currentPop);
 
-	resist = new createjs.Text("Heat preference: " + focus.traits.list[0], "12px Arial", "#000");
-	resist.x = 10;
-	resist.y = 100;
-	contentcontainer.children[1].addChild(resist);
+	heatPref = new createjs.Text("Heat preference:       " + focus.traits.list[0], "12px Arial", "#000");
+	heatPref.x = 10;
+	heatPref.y = 70;
+	contentcontainer.children[1].addChild(heatPref);
+
+	waterPref = new createjs.Text("Water preference:     " + focus.traits.list[0], "12px Arial", "#000");
+	waterPref.x = 10;
+	waterPref.y = 90;
+	contentcontainer.children[1].addChild(waterPref);
+
+	nutPref = new createjs.Text("Nutrient preference: " + focus.traits.list[0], "12px Arial", "#000");
+	nutPref.x = 10;
+	nutPref.y = 110;
+	contentcontainer.children[1].addChild(nutPref);
 }
