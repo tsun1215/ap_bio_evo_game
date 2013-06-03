@@ -13,41 +13,38 @@ Map.prototype.generatePerlin = Map.prototype.generate = function()
 	for(var i = 0; i<this.rows; i++)
 	{
 		this.tiles[i] = new Array(this.cols);
-		for(var j = 0; j<this.cols; j++)
+	}
+	generateNext(this,0,0);
+	
+	function generateNext(map,i,j)
+	{
+		if(i<map.rows)
 		{
-			var si = i/this.rows * 3.5;
-			var sj = j/this.cols * 3.5;
-			//console.log(si);
-			var temp = PerlinNoise.noise( si, sj, this.seeds[0]);
-			var water = PerlinNoise.noise( si, sj, this.seeds[1]);
-			var nut = PerlinNoise.noise( si, sj, this.seeds[2]);
-			var passingIn = new Array(temp, water, nut);
-			this.tiles[i][j] = new Tile(passingIn);
-			//Tile({temperature:temp, water: water, nutrients:nut});
+			map.generateAt(i,j);
+			setTimeout(function(){generateNext(map,i+1,j)},1);
+		}
+		else if(j<map.cols-1)
+		{
+			setTimeout(function(){generateNext(map,0,j+1)},1);
 		}
 	}
+
 }
 
-Map.prototype.display = function()
+Map.prototype.generateAt = function(i,j)
 {
-	var disp = "";
-	for(var i = 0; i<this.rows; i++)
-	{
-		for(var j = 0; j<this.cols; j++)
-		{
-			disp += "a ";
-		}
-		disp += "\n";
-	}
-	console.log(disp);
-	return disp;
+	var si = i/this.rows * 3.5;
+	var sj = j/this.cols * 3.5;
+	var temp = PerlinNoise.noise( si, sj, this.seeds[0]);
+	var water = PerlinNoise.noise( si, sj, this.seeds[1]);
+	var nut = PerlinNoise.noise( si, sj, this.seeds[2]);
+	var passingIn = new Array(temp, water, nut);
+	this.tiles[i][j] = new Tile(passingIn);
 }
 
 function Tile(attrib)
 {
-	this.attributes = new Array();
 	this.attributes = attrib;
-	// this.value = value;
 }
 
 function rgbToHex(r, g, b) {

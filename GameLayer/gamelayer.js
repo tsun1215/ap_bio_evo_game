@@ -24,16 +24,46 @@ function initGame() {
 	stage.enableMouseOver(10);
 	sList = new Array();
 	initUI();
-	initmap();
-	new Settlement(200,100,200, mapArr);
-	initScreen();
-	initSight();
-	initPopAdjuster();
+	initMap();
 }
 
-function initmap(){
+function mapReady()
+{
+	if(typeof mapArr.tiles[mapArr.rows-1] != "undefined" && typeof mapArr.tiles[mapArr.rows-1][mapArr.cols-1] != "undefined")
+		return true;
+	return false;
+}
+
+function initMap()
+{
 	mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
 	mapArr.generate();
+	var loading = document.createElement('div');
+	//Show something loady
+	loading.innerHTML = "LOADING LOL";
+	loading.setAttribute("style","z-index:50");
+	document.body.appendChild(loading);
+	var generator = setInterval(function(){
+		if(mapReady())
+		{
+			initDependencies();
+			clearInterval(generator);
+		}
+		else
+			return 0;
+	},0);
+	function initDependencies()
+	{
+		document.body.removeChild(loading);
+		initMapDraw();
+		new Settlement(200,100,200, mapArr);
+		initScreen();
+		initSight();
+		initPopAdjuster();
+	}
+}
+
+function initMapDraw(){
 	map = new createjs.Container();
 	//map.x = -(mapArr.cols*mapArr.tile_width)/2;
 	//map.y = -(mapArr.rows*mapArr.tile_width)/2;
