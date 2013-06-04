@@ -212,7 +212,9 @@ function MouseWheelHandler(e) {
 function refresh(event) {
 	if(createjs.Ticker.getTicks() % 90 == 0){
 		for(i in sList){
+			if(sList[i] == null) {continue;}
 			sList[i].survival();
+			if(sList[i] == null) {continue;}
 			sList[i].resetColor();
 		}
 		if(selectedPop){
@@ -220,20 +222,24 @@ function refresh(event) {
 		}
 	}
 	for(i in sList) {
+		if(sList[i] == null) {continue;}
 		sList[i].migrateOnce(event.delta/10);
-		if(sList[i] != null) {
-			sList[i].updatePopTag();
-		}
+		sList[i].updatePopTag();
 	}
 	stage.update(event);
 	uiStage.update(event);
+	if(createjs.Ticker.getTicks() % 1800 == 0){cleanSList();}
 }
 
-// function survive(event) {
-// 	for(i in sList) {
-// 		sList[i].survival();
-// 	}
-// }
+//Cleans out null values
+function cleanSList() {
+	for(var i=0; i<sList.length; i++) {
+		if(sList[i]==null){
+			sList.splice(i, 1);
+			i--;
+		}
+	}
+}
 
 function settMoveHandler(event){
 	if (event.type == "dblclick" && event.nativeEvent.which === 1){
@@ -271,12 +277,11 @@ function stageEventHandler(event){
 		if (focus != null){
 			// Moves the selected population on the second click
 			
-			
 			if (focus.movingPop > 0){
 				//console.log("focus.movingPop > 0");
 				var loc = stage.globalToLocal(event.stageX, event.stageY);
 				if (focus.movingPop < focus.population){
-					focus.splittTo(loc.x, loc.y);
+					focus.splitTo(loc.x, loc.y);
 				} else {
 					focus.moveTo(loc.x, loc.y);
 				} 
@@ -336,13 +341,29 @@ Settlement.prototype.moveTo = function(xCoord, yCoord){
 	this.destinationY = yCoord;
 }
 
-Settlement.prototype.splittTo = function(xCoord, yCoord, splittPop){
-	if(splittPop != null) {this.movingPop = splittPop;}
+Settlement.prototype.splitTo = function(xCoord, yCoord, splitPop){
+	if(splitPop != null) {this.movingPop = splitPop;}
 	if(this.movingPop > 0 && this.movingPop < this.population) {
 		var settle = new Settlement(this.movingPop, this.x, this.y, this.map);
 		settle.destinationX = xCoord;
 		settle.destinationY = yCoord;
 		this.population = this.population - this.movingPop;
+	}
+}
+
+Settlement.prototype.death = function() {
+	stage.removeChild(this);
+	stage.removeChild(this.popTag);
+	var i = sList.indexOf(this);
+	//sList.splice(i, 1);
+	sList[i] = null;
+	if(focus == this) {
+		sight.alpha = 0;
+		popAdjuster.alpha = 0;
+		focus = null;
+		stage.removeEventListener('stagemousemove', stageEventHandler);
+		stage.removeEventListener('click', stageEventHandler);
+		contentcontainer.children[1].removeAllChildren();
 	}
 }
 
@@ -366,6 +387,10 @@ Settlement.prototype.survival = function(){
 	if(this.movingPop > this.population || this.movingPop == this.previousPop) {
 		this.movingPop = this.population;
 		updatePopAdjuster();
+	}
+	if(this.population <= 0) {
+		this.death();
+
 	}
 	// var calcInt = interval;
 	// console.log(this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes);
@@ -528,9 +553,6 @@ Settlement.prototype.updatePopTag = function() {
 	}else{
 		stage.removeChild(this.popTag);
 		this.popTag.removeChild(this.tagText);
-		this.popTag.x = this.x;
-		this.popTag.y = this.y;
-
 		if(Math.floor(Math.log(this.previousPop)/Math.LN10) != Math.floor(Math.log(this.population)/Math.LN10)) {
 			this.popTag.removeChild(this.tagFrame);
 			this.tagFrame = new createjs.Shape();
@@ -544,6 +566,8 @@ Settlement.prototype.updatePopTag = function() {
 			this.popTag.addChild(this.tagFrame);
 		}
 	}
+	this.popTag.x = this.x;
+	this.popTag.y = this.y;
 	this.tagText = new createjs.Text(this.population, "9px Arial", "white");
 	this.popTag.addChild(this.tagText);
 	stage.addChild(this.popTag);
@@ -554,6 +578,7 @@ Settlement.prototype.checkMerge = function(xCoord, yCoord) {
 	var mergeSett;
 	var set_loc = stage.globalToLocal(xCoord, yCoord);
 	for(i in sList) {
+		if(sList[i] == null){continue;}
 		var dest_loc = stage.localToLocal(set_loc.x, set_loc.y, sList[i])
 		if(sList[i].hitTest(dest_loc.x, dest_loc.y)) {
 			if(i != index){this.mergeSett = sList[i];}
@@ -570,7 +595,8 @@ Settlement.prototype.checkMergeHelper = function() {
 			this.movingPop = this.population;
 			stage.removeChild(this.mergeSett);
 			stage.removeChild(this.mergeSett.popTag);
-			sList.splice(sList.indexOf(this.mergeSett), 1);
+			//sList.splice(sList.indexOf(this.mergeSett), 1);
+			sList[sList.indexOf(this.mergeSett)] = 0;
 			this.mergeSett = null;
 		}
 	}
