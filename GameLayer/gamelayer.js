@@ -41,7 +41,7 @@ function initMap()
 	// mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
 	// Edit the array in the next line to change map.
 	// Those are seeds to generate the random maps
-	mapArr = new Map(300,200,10, [1,2,3]);
+	mapArr = new Map(300,200,5, [1,2,3]);
 	mapArr.generate();
 	var loading = document.createElement('div');
 	//Show something loady
@@ -62,7 +62,45 @@ function initMap()
 		document.body.removeChild(loading);
 		initMapDraw();
 		map.cache(0,0,mapArr.rows*mapArr.tile_width,mapArr.cols*mapArr.tile_width);
-		new Settlement(200,100,200, mapArr);
+		stage.x = -(mapArr.rows*mapArr.tile_width)/2+300;
+		stage.y = -(mapArr.cols*mapArr.tile_width)/2+300;
+		new Settlement(200,700,450, mapArr);
+		// Checks the color of the brick (to see if its actually the correct brick)
+		// Remove for production
+		map.addEventListener("click", function(e){
+			var loc = map.globalToLocal(e.stageX,e.stageY);
+			var temp = Math.floor(mapArr.getTileAt(loc.x,loc.y).attributes[0] * 255);
+			var water = Math.floor(mapArr.getTileAt(loc.x,loc.y).attributes[1] * 255);
+			var nut = Math.floor(mapArr.getTileAt(loc.x,loc.y).attributes[2] * 255);
+			var color;
+			if(water > 150)
+			{
+				var newwater = 255-water;
+				newwater += 1.24;
+				newwater *= 1.6;
+				newwater = Math.floor(newwater);
+				color = rgbToHex(0,0,newwater);
+			}
+			else if(water > 140)
+			{
+				color = rgbToHex(255,255,nut);
+			}
+			else if(water > 70)
+			{
+				color = rgbToHex(10,nut,10);
+			}
+			else
+			{
+				color = rgbToHex(255,255,nut);
+			}
+			if ( water > 100 && water < 120 && temp < 100)
+			{
+				var newwater = Math.floor(2 * (255-water));
+				newwater = (newwater >255 ? 255: newwater);
+				color = rgbToHex(newwater,newwater,newwater);
+			}
+			console.log("Clicked color: "+color);
+		});
 		initScreen();
 		initSight();
 		initPopAdjuster();
@@ -215,7 +253,7 @@ function MouseWheelHandler(e) {
 				focus.movingPop+=10;
 			}
 			if(focus.movingPop > focus.population) {
-				focus.movingPop = focus.population;
+				// focus.movingPop = focus.population;
 			}
 		}else{
 			if(focus.movingPop > 0) {
@@ -265,6 +303,10 @@ function refresh(event) {
 	}
 	for(i in sList) {
 		if(sList[i] == null) {continue;}		
+		if(sList[i].population<0){
+			sList[i].death();
+			continue;
+		}
 		sList[i].migrateOnce(event.delta/10);
 		sList[i].updatePopTag();
 	}
@@ -435,9 +477,6 @@ Settlement.prototype.survival = function(){
 	if(this.movingPop > this.population || this.movingPop == this.previousPop) {
 		this.movingPop = this.population;
 		updatePopAdjuster();
-	}
-	if(this.population <= 0) {
-		this.death();
 	}
 	// var calcInt = interval;
 	// console.log(this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes);
