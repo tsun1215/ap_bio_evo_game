@@ -36,6 +36,7 @@ function mapReady()
 
 function initMap()
 {
+	var timer = + new Date();
 	// mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
 	// Edit the array in the next line to change map.
 	// Those are seeds to generate the random maps
@@ -59,10 +60,13 @@ function initMap()
 	{
 		document.body.removeChild(loading);
 		initMapDraw();
+		map.cache(0,0,mapArr.rows*mapArr.tile_width,mapArr.cols*mapArr.tile_width);
 		new Settlement(200,100,200, mapArr);
 		initScreen();
 		initSight();
 		initPopAdjuster();
+		stage.update();
+		console.log("Map load time: " + ((+new Date)-timer)/1000+" sec");
 	}
 }
 
@@ -111,13 +115,12 @@ function initMapDraw(){
 			pixel.y = j*mapArr.tile_width;
 			map.addChild(pixel);
 		}
-		map.cache(0,0,mapArr.rows*mapArr.tile_width,mapArr.cols*mapArr.tile_width);
-	}
+	}	
 	// var minimap = map.clone();
 	// minimap.scaleX = .7;
 	// minimap.scaleY = .7;
 	// contentcontainer.children[0].addChild(minimap);
-	stage.update();
+	
 }
 
 function initScreen() {
