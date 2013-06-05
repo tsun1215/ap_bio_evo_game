@@ -123,6 +123,7 @@ function initMapDraw(){
 }
 
 function initScreen() {
+	stage.canvas.getContext('2d').webkitImageSmoothingEnabled = false;
 	createjs.Ticker.addEventListener("tick", refresh);
 	createjs.Ticker.setFPS(30);
 	document.onkeypress = function(e) {
@@ -226,25 +227,28 @@ function MouseWheelHandler(e) {
 	}else{
 		if(e.wheelDelta != 0)
 		{
-			var x = e.pageX-stage.canvas.offsetLeft;
-			var y = e.pageY-stage.canvas.offsetTop;
-			var tileX = Math.floor(x/(mapArr.tile_width*stage.scaleX));
-			var tileY = Math.floor(y/(mapArr.tile_width*stage.scaleY));
-			
-			if(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))>0){
-				var zoom = 1.05/1;
-			}else{
-				var zoom=1/1.05;
-			}
-			stage.scaleX *= zoom;
-			stage.scaleY *= zoom;
-			if(stage.scaleX * mapArr.tile_width * mapArr.rows < stage.canvas.width)
-			{
-				stage.scaleX = 1/((mapArr.tile_width * mapArr.rows) / stage.canvas.width);
-				stage.scaleY = stage.scaleX;
-			}
+			zoomOnce(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail))));
 		}
 	}
+}
+
+function zoomOnce(n)
+{	
+	if(n>0){
+		var zoom = 1.05/1;
+	}else{
+		var zoom=1/1.05;
+	}
+	stage.scaleX *= zoom;
+	stage.scaleY *= zoom;
+	stage.x = 
+	if(stage.scaleX * mapArr.tile_width * mapArr.rows < stage.canvas.width)
+	{
+		stage.scaleX = 1/((mapArr.tile_width * mapArr.rows) / stage.canvas.width);
+		stage.scaleY = stage.scaleX;
+	}
+	
+	
 }
 
 function refresh(event) {
