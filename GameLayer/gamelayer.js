@@ -220,8 +220,23 @@ function MouseWheelHandler(e) {
 	}else{
 		if(e.wheelDelta != 0)
 		{
-			console.log(e.pageX-stage.canvas.offsetLeft);
-			console.log(e.pageY-stage.canvas.offsetTop);
+			var x = e.pageX-stage.canvas.offsetLeft;
+			var y = e.pageY-stage.canvas.offsetTop;
+			var tileX = Math.floor(x/(mapArr.tile_width*stage.scaleX));
+			var tileY = Math.floor(y/(mapArr.tile_width*stage.scaleY));
+			
+			if(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))>0){
+				var zoom = 1.05/1;
+			}else{
+				var zoom=1/1.05;
+			}
+			stage.scaleX *= zoom;
+			stage.scaleY *= zoom;
+			if(stage.scaleX * mapArr.tile_width * mapArr.rows < stage.canvas.width)
+			{
+				stage.scaleX = 1/((mapArr.tile_width * mapArr.rows) / stage.canvas.width);
+				stage.scaleY = stage.scaleX;
+			}
 		}
 	}
 }
