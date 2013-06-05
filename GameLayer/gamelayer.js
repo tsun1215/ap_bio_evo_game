@@ -153,6 +153,12 @@ function initScreen() {
 			return false;
 		}
 	});
+	document	.addEventListener("contextmenu",function(e) {
+		if (e.button === 2) {
+			e.preventDefault();
+			return false;
+		}
+	});
 	stage.addEventListener("stagemousedown", function(e)
 	{
 		e.nativeEvent.preventDefault();
