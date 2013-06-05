@@ -8,12 +8,12 @@ var sight;
 var popAdjuster;
 var popText;
 var uiStage;
-var currentPop;
 var currentName;
 var resist;
 var mapArr;
 var arbKFactor = 1000;
 var arbRValue = .5;
+var paused;
 
 Settlement.prototype = new createjs.Shape();
 Settlement.prototype.constructor = Settlement;
@@ -204,19 +204,21 @@ function MouseWheelHandler(e) {
 }
 
 function refresh(event) {
-	if(createjs.Ticker.getTicks() % 90 == 0){
-		for(i in sList){
-			sList[i].survival();
-			sList[i].resetColor();
+	if(!createjs.Ticker.getPaused()){
+		if(createjs.Ticker.getTicks() % 90 == 0){
+			for(i in sList){
+				sList[i].survival();
+				sList[i].resetColor();
+			}
+			if(selectedPop){
+				updateUI(selectedPop);
+			}
 		}
-		if(selectedPop){
-			updateUI(selectedPop);
-		}
-	}
-	for(i in sList) {
-		sList[i].migrateOnce(event.delta/10);
-		if(sList[i] != null) {
-			sList[i].updatePopTag();
+		for(i in sList) {
+			sList[i].migrateOnce(event.delta/10);
+			if(sList[i] != null) {
+				sList[i].updatePopTag();
+			}
 		}
 	}
 	stage.update(event);
@@ -559,4 +561,9 @@ function getSettByCoords(xCoord, yCoord) {
 			return sList[i];
 	}
 	return null;
+}
+
+function setPause(){
+	paused = !createjs.Ticker.getPaused();
+	createjs.Ticker.setPaused(paused);
 }
