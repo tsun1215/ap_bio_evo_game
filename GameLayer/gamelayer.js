@@ -73,8 +73,6 @@ function initMap()
 
 function initMapDraw(){
 	map = new createjs.Container();
-	mapshape = new createjs.Shape();
-	map.addChild(mapshape);
 	//map.x = -(mapArr.cols*mapArr.tile_width)/2;
 	//map.y = -(mapArr.rows*mapArr.tile_width)/2;
 	stage.addChild(map);
@@ -112,7 +110,11 @@ function initMapDraw(){
 				newwater = (newwater >255 ? 255: newwater);
 				color = rgbToHex(newwater,newwater,newwater);
 			}
-			mapshape.graphics.beginFill(color).drawRect(i*mapArr.tile_width,j*mapArr.tile_width,mapArr.tile_width,mapArr.tile_width);
+			var pixel = new createjs.Shape();
+			pixel.graphics.beginFill(color).drawRect(0,0,mapArr.tile_width,mapArr.tile_width);
+			pixel.x = i*mapArr.tile_width;
+			pixel.y = j*mapArr.tile_width;
+			map.addChild(pixel);
 		}
 	}	
 	// var minimap = map.clone();
@@ -241,14 +243,12 @@ function zoomOnce(n)
 	}
 	stage.scaleX *= zoom;
 	stage.scaleY *= zoom;
-	stage.x = 
+	// stage.x = 
 	if(stage.scaleX * mapArr.tile_width * mapArr.rows < stage.canvas.width)
 	{
 		stage.scaleX = 1/((mapArr.tile_width * mapArr.rows) / stage.canvas.width);
 		stage.scaleY = stage.scaleX;
-	}
-	
-	
+	}	
 }
 
 function refresh(event) {
