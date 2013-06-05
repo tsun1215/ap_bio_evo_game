@@ -16,16 +16,23 @@ Map.prototype.generatePerlin = Map.prototype.generate = function()
 	}
 	generateNext(this,0,0);
 	
-	function generateNext(map,i,j)
+	function generateNext(map,x,y)
 	{
-		if(i<map.rows)
+		for(var i = 0; i < 10; i++)
 		{
-			map.generateAt(i,j);
-			setTimeout(function(){generateNext(map,i+1,j)},1);
+			for(var j = 0; j < 10; j++)
+			{
+				map.generateAt(i+x,j+y);
+			}
 		}
-		else if(j<map.cols-1)
+		console.log('loaded '+(x+i-1)+','+(y+j-1));
+		if(10+x<=map.rows-1)
 		{
-			setTimeout(function(){generateNext(map,0,j+1)},1);
+			setTimeout(function(){generateNext(map,x+10,y)},0);
+		}
+		else if(y+10<=map.cols-1)
+		{
+			setTimeout(function(){generateNext(map,0,10+y)},0);
 		}
 	}
 
