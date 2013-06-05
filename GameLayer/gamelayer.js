@@ -41,7 +41,7 @@ function initMap()
 	// mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
 	// Edit the array in the next line to change map.
 	// Those are seeds to generate the random maps
-	mapArr = new Map(100,100,10, [1,2,3]);
+	mapArr = new Map(300,200,10, [1,2,3]);
 	mapArr.generate();
 	var loading = document.createElement('div');
 	//Show something loady
@@ -264,7 +264,7 @@ function refresh(event) {
 		}
 	}
 	for(i in sList) {
-		if(sList[i] == null) {continue;}
+		if(sList[i] == null) {continue;}		
 		sList[i].migrateOnce(event.delta/10);
 		sList[i].updatePopTag();
 	}
@@ -383,10 +383,16 @@ Settlement.prototype.moveTo = function(xCoord, yCoord){
 	this.destinationY = yCoord;
 }
 
+Settlement.prototype.setAttributes = function(traitlist){
+	this.traits = new TraitsList(traitlist.list[0],traitlist.list[1],traitlist.list[2])
+}
+
 Settlement.prototype.splitTo = function(xCoord, yCoord, splitPop){
 	if(splitPop != null) {this.movingPop = splitPop;}
 	if(this.movingPop > 0 && this.movingPop < this.population) {
 		var settle = new Settlement(this.movingPop, this.x, this.y, this.map);
+		settle.setAttributes(this.traits);
+		settle.resetColor();
 		settle.destinationX = xCoord;
 		settle.destinationY = yCoord;
 		this.population = this.population - this.movingPop;
@@ -432,7 +438,6 @@ Settlement.prototype.survival = function(){
 	}
 	if(this.population <= 0) {
 		this.death();
-
 	}
 	// var calcInt = interval;
 	// console.log(this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes);
@@ -638,7 +643,7 @@ Settlement.prototype.checkMergeHelper = function() {
 			stage.removeChild(this.mergeSett);
 			stage.removeChild(this.mergeSett.popTag);
 			//sList.splice(sList.indexOf(this.mergeSett), 1);
-			sList[sList.indexOf(this.mergeSett)] = 0;
+			sList[sList.indexOf(this.mergeSett)] = null;
 			this.mergeSett = null;
 		}
 	}
