@@ -36,7 +36,10 @@ function mapReady()
 
 function initMap()
 {
-	mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+	// mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+	// Edit the array in the next line to change map.
+	// Those are seeds to generate the random maps
+	mapArr = new Map(50,50,10, [1,2,3]);
 	mapArr.generate();
 	var loading = document.createElement('div');
 	//Show something loady
@@ -180,11 +183,17 @@ function MouseWheelHandler(e) {
 	if(focus!=null){
 		if(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))>0){
 			if(focus.movingPop < focus.population) {
-				focus.movingPop+=10
-			}; 
+				focus.movingPop+=10;
+			}
+			if(focus.movingPop > focus.population) {
+				focus.movingPop = focus.population;
+			}
 		}else{
 			if(focus.movingPop > 0) {
-				focus.movingPop-=10
+				focus.movingPop-=10;
+			}
+			if(focus.movingPop < 0) {
+				focus.movingPop = 0;
 			}
 		}
 		updatePopAdjuster();		
@@ -206,7 +215,9 @@ function MouseWheelHandler(e) {
 function refresh(event) {
 	if(createjs.Ticker.getTicks() % 90 == 0){
 		for(i in sList){
+			if(sList[i] == null) {continue;}
 			sList[i].survival();
+			if(sList[i] == null) {continue;}
 			sList[i].resetColor();
 		}
 		if(selectedPop){
@@ -214,25 +225,30 @@ function refresh(event) {
 		}
 	}
 	for(i in sList) {
+		if(sList[i] == null) {continue;}
 		sList[i].migrateOnce(event.delta/10);
-		if(sList[i] != null) {
-			sList[i].updatePopTag();
-		}
+		sList[i].updatePopTag();
 	}
 	stage.update(event);
 	uiStage.update(event);
+	if(createjs.Ticker.getTicks() % 1800 == 0){cleanSList();}
 }
 
-// function survive(event) {
-// 	for(i in sList) {
-// 		sList[i].survival();
-// 	}
-// }
+//Cleans out null values
+function cleanSList() {
+	for(var i=0; i<sList.length; i++) {
+		if(sList[i]==null){
+			sList.splice(i, 1);
+			i--;
+		}
+	}
+}
 
 function settMoveHandler(event){
 	if (event.type == "dblclick" && event.nativeEvent.which === 1){
 		if (focus == null){
 			focus = event.target;
+			focus.movingPop = focus.population;
 			//console.log(focus);
 			aimSight(event.stageX, event.stageY);
 			sight.alpha = .5;
@@ -263,17 +279,14 @@ function stageEventHandler(event){
 	if (event.type == "click"){
 		if (focus != null){
 			// Moves the selected population on the second click
+			
 			if (focus.movingPop > 0){
 				//console.log("focus.movingPop > 0");
 				var loc = stage.globalToLocal(event.stageX, event.stageY);
-				if (focus.movingPop < focus.population){	
-					var settle = new Settlement(focus.movingPop, focus.x, focus.y, focus.map);
-					settle.destinationX = loc.x;
-					settle.destinationY = loc.y;
-					focus.population = focus.population - focus.movingPop;
+				if (focus.movingPop < focus.population){
+					focus.splitTo(loc.x, loc.y);
 				} else {
-					focus.destinationX = loc.x;
-					focus.destinationY = loc.y;
+					focus.moveTo(loc.x, loc.y);
 				} 
 			} else {	
 				sight.alpha = 0;
@@ -281,7 +294,9 @@ function stageEventHandler(event){
 			}
 			// sight.alpha = 0;
 			// popAdjuster.alpha = 0;
-			focus.movingPop = focus.population;
+			
+			//focus.movingPop = focus.population;
+			
 			focus.checkMerge(event.stageX, event.stageY);
 			focus = null;
 			// stage.removeEventListener('click', stageEventHandler);
@@ -304,6 +319,7 @@ var TraitsList = function(heat, water, nutrient){
 }
 
 function Settlement(pop, xCoord, yCoord, amap) {
+	createjs.Shape.call(this, null);
 	this.population = pop;
 	this.previousPop = pop;
 	this.movingPop = pop;
@@ -315,7 +331,7 @@ function Settlement(pop, xCoord, yCoord, amap) {
 	this.speed;
 	this.addEventListener("click", mouseHandler);
 	this.addEventListener("dblclick", settMoveHandler);
-	this.color = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]))
+	this.color = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]));
 	this.graphics.beginStroke("black").beginFill(this.color).drawCircle(0,0,8);
 	console.log(this.color);
 	stage.addChild(this);
@@ -323,10 +339,41 @@ function Settlement(pop, xCoord, yCoord, amap) {
 	this.map = amap;
 }
 
+Settlement.prototype.moveTo = function(xCoord, yCoord){
+	this.destinationX = xCoord;
+	this.destinationY = yCoord;
+}
+
+Settlement.prototype.splitTo = function(xCoord, yCoord, splitPop){
+	if(splitPop != null) {this.movingPop = splitPop;}
+	if(this.movingPop > 0 && this.movingPop < this.population) {
+		var settle = new Settlement(this.movingPop, this.x, this.y, this.map);
+		settle.destinationX = xCoord;
+		settle.destinationY = yCoord;
+		this.population = this.population - this.movingPop;
+	}
+}
+
+Settlement.prototype.death = function() {
+	stage.removeChild(this);
+	stage.removeChild(this.popTag);
+	var i = sList.indexOf(this);
+	//sList.splice(i, 1);
+	sList[i] = null;
+	if(focus == this) {
+		sight.alpha = 0;
+		popAdjuster.alpha = 0;
+		focus = null;
+		stage.removeEventListener('stagemousemove', stageEventHandler);
+		stage.removeEventListener('click', stageEventHandler);
+		contentcontainer.children[1].removeAllChildren();
+	}
+}
+
 Settlement.prototype.resetColor = function(){
 	var colorChange = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]));
 	console.log(colorChange);
-	this.color = colorChange
+	this.color = colorChange;
 	this.graphics.clear().beginStroke("black").beginFill(colorChange).drawCircle(0,0,8);
 }
 
@@ -340,7 +387,14 @@ Settlement.prototype.survival = function(){
 	this.previousPop = this.population;
 	this.population = this.population + Math.floor(arbRValue * this.population * (1 - (this.population/k)));
 	//Math.floor(this.population*ovRate);
-	this.movingPop = this.population;
+	if(this.movingPop > this.population || this.movingPop == this.previousPop) {
+		this.movingPop = this.population;
+		updatePopAdjuster();
+	}
+	if(this.population <= 0) {
+		this.death();
+
+	}
 	// var calcInt = interval;
 	// console.log(this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes);
 	// var temp =  this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes[0] * 100;
@@ -378,7 +432,7 @@ Settlement.prototype.survival = function(){
 
 Settlement.prototype.surviveFactor = function(factor){
 	
-	var fact =  this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes[factor] * 100;
+	var fact =  this.map.getTileAt(this.x,this.y).attributes[factor] * 100;
 	// var calcInt = fact * 2;
 	console.log(fact);
 	var domGrowthRate;
@@ -490,15 +544,18 @@ function updatePopAdjuster(){
 Settlement.prototype.updatePopTag = function() {
 	if(stage.getChildIndex(this.popTag) == -1) {
 		this.tagFrame = new createjs.Shape();
-		this.tagFrame.graphics.clear().beginFill("black").drawRoundRect(-2,1,19,10,4);
 		this.popTag = new createjs.Container();
+		this.tagFrame.graphics.clear().beginFill("black");
+		switch(Math.floor(Math.log(this.population)/Math.LN10+1)){
+			case 1: this.tagFrame.graphics.drawRoundRect(-2,1,9,10,4); break;
+			case 2: this.tagFrame.graphics.drawRoundRect(-2,1,14,10,4); break;
+			case 3: this.tagFrame.graphics.drawRoundRect(-2,1,19,10,4); break;
+			case 4: this.tagFrame.graphics.drawRoundRect(-2,1,24,10,4); break;
+		}
 		this.popTag.addChild(this.tagFrame);
 	}else{
 		stage.removeChild(this.popTag);
 		this.popTag.removeChild(this.tagText);
-		this.popTag.x = this.x;
-		this.popTag.y = this.y;
-
 		if(Math.floor(Math.log(this.previousPop)/Math.LN10) != Math.floor(Math.log(this.population)/Math.LN10)) {
 			this.popTag.removeChild(this.tagFrame);
 			this.tagFrame = new createjs.Shape();
@@ -512,6 +569,8 @@ Settlement.prototype.updatePopTag = function() {
 			this.popTag.addChild(this.tagFrame);
 		}
 	}
+	this.popTag.x = this.x;
+	this.popTag.y = this.y;
 	this.tagText = new createjs.Text(this.population, "9px Arial", "white");
 	this.popTag.addChild(this.tagText);
 	stage.addChild(this.popTag);
@@ -522,6 +581,7 @@ Settlement.prototype.checkMerge = function(xCoord, yCoord) {
 	var mergeSett;
 	var set_loc = stage.globalToLocal(xCoord, yCoord);
 	for(i in sList) {
+		if(sList[i] == null){continue;}
 		var dest_loc = stage.localToLocal(set_loc.x, set_loc.y, sList[i])
 		if(sList[i].hitTest(dest_loc.x, dest_loc.y)) {
 			if(i != index){this.mergeSett = sList[i];}
@@ -538,7 +598,8 @@ Settlement.prototype.checkMergeHelper = function() {
 			this.movingPop = this.population;
 			stage.removeChild(this.mergeSett);
 			stage.removeChild(this.mergeSett.popTag);
-			sList.splice(sList.indexOf(this.mergeSett), 1);
+			//sList.splice(sList.indexOf(this.mergeSett), 1);
+			sList[sList.indexOf(this.mergeSett)] = 0;
 			this.mergeSett = null;
 		}
 	}
