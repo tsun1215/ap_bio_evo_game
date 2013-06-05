@@ -14,6 +14,7 @@ var resist;
 var mapArr;
 var arbKFactor = 1000;
 var arbRValue = .5;
+var map, mapshape;
 
 Settlement.prototype = new createjs.Shape();
 Settlement.prototype.constructor = Settlement;
@@ -40,7 +41,7 @@ function initMap()
 	// mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
 	// Edit the array in the next line to change map.
 	// Those are seeds to generate the random maps
-	mapArr = new Map(300,200,10, [113,212,213]);
+	mapArr = new Map(300,200,10, [1,2,3]);
 	mapArr.generate();
 	var loading = document.createElement('div');
 	//Show something loady
@@ -72,6 +73,8 @@ function initMap()
 
 function initMapDraw(){
 	map = new createjs.Container();
+	mapshape = new createjs.Shape();
+	map.addChild(mapshape);
 	//map.x = -(mapArr.cols*mapArr.tile_width)/2;
 	//map.y = -(mapArr.rows*mapArr.tile_width)/2;
 	stage.addChild(map);
@@ -109,11 +112,7 @@ function initMapDraw(){
 				newwater = (newwater >255 ? 255: newwater);
 				color = rgbToHex(newwater,newwater,newwater);
 			}
-			var pixel = new createjs.Shape();
-			pixel.graphics.beginFill(color).drawRect(0,0,mapArr.tile_width,mapArr.tile_width);
-			pixel.x = i*mapArr.tile_width;
-			pixel.y = j*mapArr.tile_width;
-			map.addChild(pixel);
+			mapshape.graphics.beginFill(color).drawRect(i*mapArr.tile_width,j*mapArr.tile_width,mapArr.tile_width,mapArr.tile_width);
 		}
 	}	
 	// var minimap = map.clone();
@@ -154,6 +153,12 @@ function initScreen() {
 			return false;
 		}
 	});
+	document	.addEventListener("contextmenu",function(e) {
+		if (e.button === 2) {
+			e.preventDefault();
+			return false;
+		}
+	});
 	stage.addEventListener("stagemousedown", function(e)
 	{
 		e.nativeEvent.preventDefault();
@@ -164,8 +169,26 @@ function initScreen() {
 			function move(e)
 			{
 				e.nativeEvent.preventDefault();
-				stage.x = e.stageX - x;
-				stage.y = e.stageY - y;
+				var newX = e.stageX - x;
+				var newY = e.stageY - y;
+				if(newX > 0)
+				{
+					newX = 0;
+				}
+				else if(newX < stage.canvas.width-((mapArr.rows*mapArr.tile_width)*stage.scaleX))
+				{
+					newX = stage.canvas.width-((mapArr.rows*mapArr.tile_width)*stage.scaleX);
+				}	
+				if(newY > 0)
+				{
+					newY = 0;
+				}
+				else if(newY < stage.canvas.height-((mapArr.cols*mapArr.tile_width)*stage.scaleY))
+				{
+					newY = stage.canvas.height-((mapArr.cols*mapArr.tile_width)*stage.scaleX);
+				}
+				stage.x = newX;
+				stage.y = newY;
 			}
 			stage.addEventListener("stagemousemove", move);
 			function up(e)
@@ -203,7 +226,11 @@ function MouseWheelHandler(e) {
 	}else{
 		if(e.wheelDelta != 0)
 		{
-			var loc = stage.globalToLocal(e.clientX, e.clientY);
+			var x = e.pageX-stage.canvas.offsetLeft;
+			var y = e.pageY-stage.canvas.offsetTop;
+			var tileX = Math.floor(x/(mapArr.tile_width*stage.scaleX));
+			var tileY = Math.floor(y/(mapArr.tile_width*stage.scaleY));
+			
 			if(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))>0){
 				var zoom = 1.05/1;
 			}else{
@@ -211,6 +238,11 @@ function MouseWheelHandler(e) {
 			}
 			stage.scaleX *= zoom;
 			stage.scaleY *= zoom;
+			if(stage.scaleX * mapArr.tile_width * mapArr.rows < stage.canvas.width)
+			{
+				stage.scaleX = 1/((mapArr.tile_width * mapArr.rows) / stage.canvas.width);
+				stage.scaleY = stage.scaleX;
+			}
 		}
 	}
 }

@@ -25,7 +25,7 @@ Map.prototype.generatePerlin = Map.prototype.generate = function()
 				map.generateAt(i+x,j+y);
 			}
 		}
-		console.log('loaded '+(x+i-1)+','+(y+j-1));
+		//console.log('loaded '+(x+i-1)+','+(y+j-1));
 		if(10+x<=map.rows-1)
 		{
 			setTimeout(function(){generateNext(map,x+10,y)},0);
