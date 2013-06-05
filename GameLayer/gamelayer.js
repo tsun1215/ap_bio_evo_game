@@ -300,38 +300,39 @@ function setCenter(x,y)
 function refresh(event) {
 	if(createjs.Ticker.getTicks() % 90 == 0){
 		for(i in sList){
-			if(sList[i] == null) {continue;}
 			sList[i].survival();
-			if(sList[i] == null) {continue;}
 			sList[i].resetColor();
 		}
 		if(selectedPop){
 			updateUI(selectedPop);
 		}
 	}
+
 	for(i in sList) {
-		if(sList[i] == null) {continue;}		
-		if(sList[i].population<0){
-			sList[i].death();
-			continue;
-		}
 		sList[i].migrateOnce(event.delta/10);
 		sList[i].updatePopTag();
-	}
-	stage.update(event);
-	uiStage.update(event);
-	if(createjs.Ticker.getTicks() % 1800 == 0){cleanSList();}
-}
 
-//Cleans out null values
-function cleanSList() {
-	for(var i=0; i<sList.length; i++) {
-		if(sList[i]==null){
-			sList.splice(i, 1);
+		//Clears any dead Settlements
+		if(sList[i].population <= 0) {
+			stage.removeChild(sList[i]);
+			stage.removeChild(sList[i].popTag);
+			var j = sList.indexOf(sList[i]);
+			sList.splice(j, 1);
+			if(focus == sList[i]) {
+				sight.alpha = 0;
+				popAdjuster.alpha = 0;
+				focus = null;
+				stage.removeEventListener('stagemousemove', stageEventHandler);
+				stage.removeEventListener('click', stageEventHandler);
+				contentcontainer.children[1].removeAllChildren();
+			}
 			i--;
 		}
 	}
+	stage.update(event);
+	uiStage.update(event);
 }
+
 
 function settMoveHandler(event){
 	if (event.type == "dblclick" && event.nativeEvent.which === 1){
@@ -428,13 +429,13 @@ function Settlement(pop, xCoord, yCoord, amap) {
 	this.map = amap;
 }
 
+Settlement.prototype.death = function() {
+	this.population = 0;
+}
+
 Settlement.prototype.moveTo = function(xCoord, yCoord){
 	this.destinationX = xCoord;
 	this.destinationY = yCoord;
-}
-
-Settlement.prototype.setAttributes = function(traitlist){
-	this.traits = new TraitsList(traitlist.list[0],traitlist.list[1],traitlist.list[2])
 }
 
 Settlement.prototype.splitTo = function(xCoord, yCoord, splitPop){
@@ -449,20 +450,8 @@ Settlement.prototype.splitTo = function(xCoord, yCoord, splitPop){
 	}
 }
 
-Settlement.prototype.death = function() {
-	stage.removeChild(this);
-	stage.removeChild(this.popTag);
-	var i = sList.indexOf(this);
-	//sList.splice(i, 1);
-	sList[i] = null;
-	if(focus == this) {
-		sight.alpha = 0;
-		popAdjuster.alpha = 0;
-		focus = null;
-		stage.removeEventListener('stagemousemove', stageEventHandler);
-		stage.removeEventListener('click', stageEventHandler);
-		contentcontainer.children[1].removeAllChildren();
-	}
+Settlement.prototype.setAttributes = function(traitlist){
+	this.traits = new TraitsList(traitlist.list[0],traitlist.list[1],traitlist.list[2])
 }
 
 Settlement.prototype.resetColor = function(){
@@ -686,12 +675,9 @@ Settlement.prototype.checkMergeHelper = function() {
 			this.traits.list[0] = ((this.traits.list[0] * this.population) + (this.mergeSett.traits.list[0] * this.mergeSett.population))/(this.population + this.mergeSett.population);
 			this.population += this.mergeSett.population;
 			
-			this.movingPop = this.population;
 			stage.removeChild(this.mergeSett);
 			stage.removeChild(this.mergeSett.popTag);
-			//sList.splice(sList.indexOf(this.mergeSett), 1);
-			sList[sList.indexOf(this.mergeSett)] = null;
-			this.mergeSett = null;
+			this.mergeSett.population = 0;
 		}
 	}
 }
