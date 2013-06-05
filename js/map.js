@@ -31,6 +31,15 @@ Map.prototype.generatePerlin = Map.prototype.generate = function()
 
 }
 
+Map.prototype.getTileAt = function(x,y){
+	if (this.tiles[Math.floor(x/this.tile_width)][Math.floor(y/this.tile_width)]){
+		return this.tiles[Math.floor(x/this.tile_width)][Math.floor(y/this.tile_width)];
+	}else{
+		console.log("Settlement not on map");
+		return null;
+	}
+}
+
 Map.prototype.generateAt = function(i,j)
 {
 	var si = i/this.rows * 3.5;

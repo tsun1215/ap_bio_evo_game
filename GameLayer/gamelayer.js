@@ -36,7 +36,10 @@ function mapReady()
 
 function initMap()
 {
-	mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+	// mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+	// Edit the array in the next line to change map.
+	// Those are seeds to generate the random maps
+	mapArr = new Map(50,50,10, [1,2,3]);
 	mapArr.generate();
 	var loading = document.createElement('div');
 	//Show something loady
@@ -429,7 +432,7 @@ Settlement.prototype.survival = function(){
 
 Settlement.prototype.surviveFactor = function(factor){
 	
-	var fact =  this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes[factor] * 100;
+	var fact =  this.map.getTileAt(this.x,this.y).attributes[factor] * 100;
 	// var calcInt = fact * 2;
 	console.log(fact);
 	var domGrowthRate;
