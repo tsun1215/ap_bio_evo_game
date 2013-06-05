@@ -236,12 +236,12 @@ function zoomOnce(n)
 {	
 	if(n>0){
 		var zoom = 1.05/1;
-	}else{
+	}
+	else{
 		var zoom=1/1.05;
 	}
 	stage.scaleX *= zoom;
 	stage.scaleY *= zoom;
-	stage.x = 
 	if(stage.scaleX * mapArr.tile_width * mapArr.rows < stage.canvas.width)
 	{
 		stage.scaleX = 1/((mapArr.tile_width * mapArr.rows) / stage.canvas.width);
