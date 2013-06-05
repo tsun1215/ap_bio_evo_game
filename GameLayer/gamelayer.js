@@ -248,7 +248,15 @@ function zoomOnce(n)
 	{
 		stage.scaleX = 1/((mapArr.tile_width * mapArr.rows) / stage.canvas.width);
 		stage.scaleY = stage.scaleX;
-	}	
+	}
+	console.log(stage.x);
+	setCenter(stage.x,stage.y);
+}
+
+function setCenter(x,y)
+{
+	stage.x = -x*stage.scaleX+(stage.canvas.width/2);
+	stage.y = -y*stage.scaleY+(stage.canvas.height/2);
 }
 
 function refresh(event) {
