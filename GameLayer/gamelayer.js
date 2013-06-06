@@ -14,6 +14,8 @@ var mapArr;
 var arbKFactor = 1000;
 var arbRValue = .5;
 var paused;
+var map, mapshape;
+var progress;
 
 Settlement.prototype = new createjs.Shape();
 Settlement.prototype.constructor = Settlement;
@@ -39,13 +41,17 @@ function mapReady()
 
 function initMap()
 {
-	mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+	var timer = + new Date();
+	// mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+	// Edit the array in the next line to change map.
+	// Those are seeds to generate the random maps
+	mapArr = new Map(300,200,5, [1,2,3]);
+	progress = document.body.getElementsByTagName("progress")[0];
+	progress.setAttribute("style","position:absolute");
+	progress.attributes.max.value=(mapArr.rows*mapArr.cols)*2;
 	mapArr.generate();
-	var loading = document.createElement('div');
-	//Show something loady
-	loading.innerHTML = "LOADING LOL";
-	loading.setAttribute("style","position:absolute");
-	document.body.appendChild(loading);
+
+	// Initializes loading bar
 	var generator = setInterval(function(){
 		if(mapReady())
 		{
@@ -56,14 +62,59 @@ function initMap()
 			return 0;
 	},0);
 	function initDependencies()
-	{
-		document.body.removeChild(loading);
+	{		
 		initMapDraw();
-		new Settlement(200,100,200, mapArr);
-		initScreen();
-		initSight();
-		initPopAdjuster();
+		map.cache(0,0,mapArr.rows*mapArr.tile_width,mapArr.cols*mapArr.tile_width);		
 	}
+}
+
+function startGame(){
+	map.updateCache();
+	document.body.removeChild(progress);
+	stage.x = -(mapArr.rows*mapArr.tile_width)/2+300;
+	stage.y = -(mapArr.cols*mapArr.tile_width)/2+300;
+	new Settlement(200,700,450, mapArr);
+	// Checks the color of the brick (to see if its actually the correct brick)
+	// Remove for production
+	map.addEventListener("click", function(e){
+		var loc = map.globalToLocal(e.stageX,e.stageY);
+		var temp = Math.floor(mapArr.getTileAt(loc.x,loc.y).attributes[0] * 255);
+		var water = Math.floor(mapArr.getTileAt(loc.x,loc.y).attributes[1] * 255);
+		var nut = Math.floor(mapArr.getTileAt(loc.x,loc.y).attributes[2] * 255);
+		var color;
+		if(water > 150)
+		{
+			var newwater = 255-water;
+			newwater += 1.24;
+			newwater *= 1.6;
+			newwater = Math.floor(newwater);
+			color = rgbToHex(0,0,newwater);
+		}
+		else if(water > 140)
+		{
+			color = rgbToHex(255,255,nut);
+		}
+		else if(water > 70)
+		{
+			color = rgbToHex(10,nut,10);
+		}
+		else
+		{
+			color = rgbToHex(255,255,nut);
+		}
+		if ( water > 100 && water < 120 && temp < 100)
+		{
+			var newwater = Math.floor(2 * (255-water));
+			newwater = (newwater >255 ? 255: newwater);
+			color = rgbToHex(newwater,newwater,newwater);
+		}
+		console.log("Clicked color: "+color);
+	});
+	initScreen();
+	initSight();
+	initPopAdjuster();
+	stage.update();
+	console.log("Map load time: " + ((+new Date)-timer)/1000+" sec");
 }
 
 function initMapDraw(){
@@ -71,56 +122,74 @@ function initMapDraw(){
 	//map.x = -(mapArr.cols*mapArr.tile_width)/2;
 	//map.y = -(mapArr.rows*mapArr.tile_width)/2;
 	stage.addChild(map);
-	for(var i = 0; i<mapArr.rows; i++)
+	generateNext(0,0);
+	function generateNext(x,y)
 	{
-		for(var j=0; j<mapArr.cols; j++)
+		for(var i = 0; i < 10; i++)
 		{
-			var temp = Math.floor(mapArr.tiles[i][j].attributes[0] * 255);
-			var water = Math.floor(mapArr.tiles[i][j].attributes[1] * 255);
-			var nut = Math.floor(mapArr.tiles[i][j].attributes[2] * 255);
-			var color;
-			if(water > 150)
+			for(var j = 0; j < 10; j++)
 			{
-				var newwater = 255-water;
-				newwater += 1.24;
-				newwater *= 1.6;
-				newwater = Math.floor(newwater);
-				color = rgbToHex(0,0,newwater);
+				drawNextMap(i+x,j+y);
+				progress.attributes.value.value++;
 			}
-			else if(water > 140)
-			{
-				color = rgbToHex(255,255,nut);
-			}
-			else if(water > 70)
-			{
-				color = rgbToHex(10,nut,10);
-			}
-			else
-			{
-				color = rgbToHex(255,255,nut);
-			}
-			if ( water > 100 && water < 120 && temp < 100)
-			{
-				var newwater = Math.floor(2 * (255-water));
-				newwater = (newwater >255 ? 255: newwater);
-				color = rgbToHex(newwater,newwater,newwater);
-			}
-			var pixel = new createjs.Shape();
-			pixel.graphics.beginFill(color).drawRect(0,0,mapArr.tile_width,mapArr.tile_width);
-			pixel.x = i*mapArr.tile_width;
-			pixel.y = j*mapArr.tile_width;
-			map.addChild(pixel);
 		}
-		map.cache(0,0,mapArr.rows*mapArr.tile_width,mapArr.cols*mapArr.tile_width);
+		if(10+x<=mapArr.rows-1)
+		{
+			setTimeout(function(){generateNext(x+10,y)},0);
+		}
+		else if(y+10<=mapArr.cols-1)
+		{
+			setTimeout(function(){generateNext(0,10+y)},0);
+		}else{
+			startGame();			
+		}
 	}
 	// var minimap = map.clone();
 	// minimap.scaleX = .7;
 	// minimap.scaleY = .7;
-	// contentcontainer.children[0].addChild(minimap);
-	stage.update();
+	// contentcontainer.children[0].addChild(minimap);	
+}
+
+function drawNextMap(i,j){
+	var temp = Math.floor(mapArr.tiles[i][j].attributes[0] * 255);
+	var water = Math.floor(mapArr.tiles[i][j].attributes[1] * 255);
+	var nut = Math.floor(mapArr.tiles[i][j].attributes[2] * 255);
+	var color;
+	if(water > 150)
+	{
+		var newwater = 255-water;
+		newwater += 1.24;
+		newwater *= 1.6;
+		newwater = Math.floor(newwater);
+		color = rgbToHex(0,0,newwater);
+	}
+	else if(water > 140)
+	{
+		color = rgbToHex(255,255,nut);
+	}
+	else if(water > 70)
+	{
+		color = rgbToHex(10,nut,10);
+	}
+	else
+	{
+		color = rgbToHex(255,255,nut);
+	}
+	if ( water > 100 && water < 120 && temp < 100)
+	{
+		var newwater = Math.floor(2 * (255-water));
+		newwater = (newwater >255 ? 255: newwater);
+		color = rgbToHex(newwater,newwater,newwater);
+	}
+	var pixel = new createjs.Shape();
+	pixel.graphics.beginFill(color).drawRect(0,0,mapArr.tile_width,mapArr.tile_width);
+	pixel.x = i*mapArr.tile_width;
+	pixel.y = j*mapArr.tile_width;
+	map.addChild(pixel);
 }
 
 function initScreen() {
+	stage.canvas.getContext('2d').webkitImageSmoothingEnabled = false;
 	createjs.Ticker.addEventListener("tick", refresh);
 	createjs.Ticker.setFPS(30);
 	document.onkeypress = function(e) {
@@ -151,6 +220,12 @@ function initScreen() {
 			return false;
 		}
 	});
+	document.addEventListener("contextmenu",function(e) {
+		if (e.button === 2) {
+			e.preventDefault();
+			return false;
+		}
+	});
 	stage.addEventListener("stagemousedown", function(e)
 	{
 		e.nativeEvent.preventDefault();
@@ -161,8 +236,26 @@ function initScreen() {
 			function move(e)
 			{
 				e.nativeEvent.preventDefault();
-				stage.x = e.stageX - x;
-				stage.y = e.stageY - y;
+				var newX = e.stageX - x;
+				var newY = e.stageY - y;
+				if(newX > 0)
+				{
+					newX = 0;
+				}
+				else if(newX < stage.canvas.width-((mapArr.rows*mapArr.tile_width)*stage.scaleX))
+				{
+					newX = stage.canvas.width-((mapArr.rows*mapArr.tile_width)*stage.scaleX);
+				}	
+				if(newY > 0)
+				{
+					newY = 0;
+				}
+				else if(newY < stage.canvas.height-((mapArr.cols*mapArr.tile_width)*stage.scaleY))
+				{
+					newY = stage.canvas.height-((mapArr.cols*mapArr.tile_width)*stage.scaleX);
+				}
+				stage.x = newX;
+				stage.y = newY;
 			}
 			stage.addEventListener("stagemousemove", move);
 			function up(e)
@@ -183,32 +276,56 @@ function MouseWheelHandler(e) {
 	if(focus!=null){
 		if(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))>0){
 			if(focus.movingPop < focus.population) {
-				focus.movingPop+=10
-			}; 
+				focus.movingPop+=10;
+			}
+			if(focus.movingPop > focus.population) {
+				// focus.movingPop = focus.population;
+			}
 		}else{
 			if(focus.movingPop > 0) {
-				focus.movingPop-=10
+				focus.movingPop-=10;
+			}
+			if(focus.movingPop < 0) {
+				focus.movingPop = 0;
 			}
 		}
 		updatePopAdjuster();		
 	}else{
 		if(e.wheelDelta != 0)
 		{
-			var loc = stage.globalToLocal(e.clientX, e.clientY);
-			if(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))>0){
-				var zoom = 1.05/1;
-			}else{
-				var zoom=1/1.05;
-			}
-			stage.scaleX *= zoom;
-			stage.scaleY *= zoom;
+			zoomOnce(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail))));
 		}
 	}
 }
 
+function zoomOnce(n)
+{	
+	if(n>0){
+		var zoom = 1.05/1;
+	}
+	else{
+		var zoom=1/1.05;
+	}
+	stage.scaleX *= zoom;
+	stage.scaleY *= zoom;
+	if(stage.scaleX * mapArr.tile_width * mapArr.rows < stage.canvas.width)
+	{
+		stage.scaleX = 1/((mapArr.tile_width * mapArr.rows) / stage.canvas.width);
+		stage.scaleY = stage.scaleX;
+	}
+	console.log(stage.x);
+	setCenter(stage.x,stage.y);
+}
+
+function setCenter(x,y)
+{
+	stage.x = -x*stage.scaleX+(stage.canvas.width/2);
+	stage.y = -y*stage.scaleY+(stage.canvas.height/2);
+}
+
 function refresh(event) {
 	if(!createjs.Ticker.getPaused()){
-		if(createjs.Ticker.getTicks() % 90 == 0){
+		if(createjs.Ticker.getTicks() % 45 == 0){
 			for(i in sList){
 				sList[i].survival();
 				sList[i].resetColor();
@@ -217,27 +334,39 @@ function refresh(event) {
 				updateUI(selectedPop);
 			}
 		}
+
 		for(i in sList) {
 			sList[i].migrateOnce(event.delta/10);
-			if(sList[i] != null) {
-				sList[i].updatePopTag();
+			sList[i].updatePopTag();
+
+			//Clears any dead Settlements
+			if(sList[i].population <= 0) {
+				stage.removeChild(sList[i]);
+				stage.removeChild(sList[i].popTag);
+				var j = sList.indexOf(sList[i]);
+				sList.splice(j, 1);
+				if(focus == sList[i]) {
+					sight.alpha = 0;
+					popAdjuster.alpha = 0;
+					focus = null;
+					stage.removeEventListener('stagemousemove', stageEventHandler);
+					stage.removeEventListener('click', stageEventHandler);
+					contentcontainer.children[1].removeAllChildren();
+				}
+				i--;
 			}
 		}
+		stage.update(event);
+		uiStage.update(event);
 	}
-	stage.update(event);
-	uiStage.update(event);
 }
 
-// function survive(event) {
-// 	for(i in sList) {
-// 		sList[i].survival();
-// 	}
-// }
 
 function settMoveHandler(event){
 	if (event.type == "dblclick" && event.nativeEvent.which === 1){
 		if (focus == null){
 			focus = event.target;
+			focus.movingPop = focus.population;
 			//console.log(focus);
 			aimSight(event.stageX, event.stageY);
 			sight.alpha = .5;
@@ -268,17 +397,14 @@ function stageEventHandler(event){
 	if (event.type == "click"){
 		if (focus != null){
 			// Moves the selected population on the second click
+			
 			if (focus.movingPop > 0){
 				//console.log("focus.movingPop > 0");
 				var loc = stage.globalToLocal(event.stageX, event.stageY);
-				if (focus.movingPop < focus.population){	
-					var settle = new Settlement(focus.movingPop, focus.x, focus.y, focus.map);
-					settle.destinationX = loc.x;
-					settle.destinationY = loc.y;
-					focus.population = focus.population - focus.movingPop;
+				if (focus.movingPop < focus.population){
+					focus.splitTo(loc.x, loc.y);
 				} else {
-					focus.destinationX = loc.x;
-					focus.destinationY = loc.y;
+					focus.moveTo(loc.x, loc.y);
 				} 
 			} else {	
 				sight.alpha = 0;
@@ -286,7 +412,9 @@ function stageEventHandler(event){
 			}
 			// sight.alpha = 0;
 			// popAdjuster.alpha = 0;
-			focus.movingPop = focus.population;
+			
+			//focus.movingPop = focus.population;
+			
 			focus.checkMerge(event.stageX, event.stageY);
 			focus = null;
 			// stage.removeEventListener('click', stageEventHandler);
@@ -319,6 +447,7 @@ function ping(x,y){
 
 
 function Settlement(pop, xCoord, yCoord, amap) {
+	createjs.Shape.call(this, null);
 	this.population = pop;
 	this.previousPop = pop;
 	this.movingPop = pop;
@@ -330,18 +459,41 @@ function Settlement(pop, xCoord, yCoord, amap) {
 	this.speed;
 	this.addEventListener("click", mouseHandler);
 	this.addEventListener("dblclick", settMoveHandler);
-	this.color = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]))
+	this.color = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]));
 	this.graphics.beginStroke("black").beginFill(this.color).drawCircle(0,0,8);
-	console.log(this.color);
 	stage.addChild(this);
 	sList.push(this);
 	this.map = amap;
 }
 
+Settlement.prototype.death = function() {
+	this.population = 0;
+}
+
+Settlement.prototype.moveTo = function(xCoord, yCoord){
+	this.destinationX = xCoord;
+	this.destinationY = yCoord;
+}
+
+Settlement.prototype.splitTo = function(xCoord, yCoord, splitPop){
+	if(splitPop != null) {this.movingPop = splitPop;}
+	if(this.movingPop > 0 && this.movingPop < this.population) {
+		var settle = new Settlement(this.movingPop, this.x, this.y, this.map);
+		settle.setAttributes(this.traits);
+		settle.resetColor();
+		settle.destinationX = xCoord;
+		settle.destinationY = yCoord;
+		this.population = this.population - this.movingPop;
+	}
+}
+
+Settlement.prototype.setAttributes = function(traitlist){
+	this.traits = new TraitsList(traitlist.list[0],traitlist.list[1],traitlist.list[2])
+}
+
 Settlement.prototype.resetColor = function(){
 	var colorChange = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]));
-	console.log(colorChange);
-	this.color = colorChange
+	this.color = colorChange;
 	this.graphics.clear().beginStroke("black").beginFill(colorChange).drawCircle(0,0,8);
 }
 
@@ -355,7 +507,10 @@ Settlement.prototype.survival = function(){
 	this.previousPop = this.population;
 	this.population = this.population + Math.floor(arbRValue * this.population * (1 - (this.population/k)));
 	//Math.floor(this.population*ovRate);
-	this.movingPop = this.population;
+	if(this.movingPop > this.population || this.movingPop == this.previousPop) {
+		this.movingPop = this.population;
+		updatePopAdjuster();
+	}
 	// var calcInt = interval;
 	// console.log(this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes);
 	// var temp =  this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes[0] * 100;
@@ -393,7 +548,7 @@ Settlement.prototype.survival = function(){
 
 Settlement.prototype.surviveFactor = function(factor){
 	
-	var fact =  this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes[factor] * 100;
+	var fact =  this.map.getTileAt(this.x,this.y).attributes[factor] * 100;
 	// var calcInt = fact * 2;
 	console.log(fact);
 	var domGrowthRate;
@@ -505,15 +660,18 @@ function updatePopAdjuster(){
 Settlement.prototype.updatePopTag = function() {
 	if(stage.getChildIndex(this.popTag) == -1) {
 		this.tagFrame = new createjs.Shape();
-		this.tagFrame.graphics.clear().beginFill("black").drawRoundRect(-2,1,19,10,4);
 		this.popTag = new createjs.Container();
+		this.tagFrame.graphics.clear().beginFill("black");
+		switch(Math.floor(Math.log(this.population)/Math.LN10+1)){
+			case 1: this.tagFrame.graphics.drawRoundRect(-2,1,9,10,4); break;
+			case 2: this.tagFrame.graphics.drawRoundRect(-2,1,14,10,4); break;
+			case 3: this.tagFrame.graphics.drawRoundRect(-2,1,19,10,4); break;
+			case 4: this.tagFrame.graphics.drawRoundRect(-2,1,24,10,4); break;
+		}
 		this.popTag.addChild(this.tagFrame);
 	}else{
 		stage.removeChild(this.popTag);
 		this.popTag.removeChild(this.tagText);
-		this.popTag.x = this.x;
-		this.popTag.y = this.y;
-
 		if(Math.floor(Math.log(this.previousPop)/Math.LN10) != Math.floor(Math.log(this.population)/Math.LN10)) {
 			this.popTag.removeChild(this.tagFrame);
 			this.tagFrame = new createjs.Shape();
@@ -527,6 +685,8 @@ Settlement.prototype.updatePopTag = function() {
 			this.popTag.addChild(this.tagFrame);
 		}
 	}
+	this.popTag.x = this.x;
+	this.popTag.y = this.y;
 	this.tagText = new createjs.Text(this.population, "9px Arial", "white");
 	this.popTag.addChild(this.tagText);
 	stage.addChild(this.popTag);
@@ -537,6 +697,7 @@ Settlement.prototype.checkMerge = function(xCoord, yCoord) {
 	var mergeSett;
 	var set_loc = stage.globalToLocal(xCoord, yCoord);
 	for(i in sList) {
+		if(sList[i] == null){continue;}
 		var dest_loc = stage.localToLocal(set_loc.x, set_loc.y, sList[i])
 		if(sList[i].hitTest(dest_loc.x, dest_loc.y)) {
 			if(i != index){this.mergeSett = sList[i];}
@@ -550,11 +711,9 @@ Settlement.prototype.checkMergeHelper = function() {
 			this.traits.list[0] = ((this.traits.list[0] * this.population) + (this.mergeSett.traits.list[0] * this.mergeSett.population))/(this.population + this.mergeSett.population);
 			this.population += this.mergeSett.population;
 			
-			this.movingPop = this.population;
 			stage.removeChild(this.mergeSett);
 			stage.removeChild(this.mergeSett.popTag);
-			sList.splice(sList.indexOf(this.mergeSett), 1);
-			this.mergeSett = null;
+			this.mergeSett.population = 0;
 		}
 	}
 }
