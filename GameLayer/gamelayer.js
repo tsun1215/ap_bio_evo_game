@@ -18,6 +18,9 @@ var paused;
 Settlement.prototype = new createjs.Shape();
 Settlement.prototype.constructor = Settlement;
 
+ping.prototype = new createjs.Shape();
+ping.prototype.constructor = ping;
+
 function initGame() {
 	stage = new createjs.Stage("screen");
 	uiStage = new createjs.Stage("uiStage");
@@ -304,6 +307,16 @@ var TraitsList = function(heat, water, nutrient){
 	this.list[1] = water;
 	this.list[2] = nutrient;
 }
+
+function ping(x,y){
+	this.x = x;
+	this.y = y;
+	this.addEventListener("click",mouseHandler);
+	this.graphics.beginStroke("black").beginFill("#F00").drawCircle(0,0,5);
+	stage.addChild(this);
+}
+
+
 
 function Settlement(pop, xCoord, yCoord, amap) {
 	this.population = pop;

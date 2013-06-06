@@ -21,7 +21,7 @@
 		border-top:10px solid gray;
 	}
 
-	#test{
+	button{
 		position:absolute;
 		width:100px;
 		height:25px;
@@ -30,7 +30,7 @@
 		background-color:rgba(200,200,200,0.5);
 		/*opacity: 1;*/
 	}
-	#test:hover{
+	button:hover{
 		/*opacity: 0.5;*/
 		background-color:rgba(200,200,200,1);
 	}
@@ -44,6 +44,7 @@
 	<canvas id="screen" width="900" height="600"></canvas>
 	<canvas id="uiStage" width = "900" height = "150"></canvas>
 	<button id = "test" onclick = "setPause()"> Pause </button>
+	<button id = "ping" onclick = "setPing()"> Ping </button>
 	<p id = "popsize"> </p>
 	<p id = "heatPref"></p>
 	<p id = "waterPref"></p>

@@ -21,10 +21,15 @@ function initUI(){
 	controlContainer.addChild(testing3);
 
 	pause = document.getElementById("test");
-	var pButton = new createjs.DOMElement(pause);
-	pButton.x = 50;
-	pButton.y = 475;
-	controlContainer.addChild(pButton);
+	var pauseButton = new createjs.DOMElement(pause);
+	pauseButton.x = 50;
+	pauseButton.y = 475;
+	controlContainer.addChild(pauseButton);
+
+	var pingButton = new createjs.DOMElement(document.getElementById("ping"));
+	pingButton.x = 50;
+	pingButton.y = 505;
+	controlContainer.addChild(pingButton);
 
 	popsize = new createjs.DOMElement(document.getElementById("popsize"));
 	popsize.x = 10;
