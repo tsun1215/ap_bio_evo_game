@@ -23,9 +23,10 @@ Map.prototype.generatePerlin = Map.prototype.generate = function()
 			for(var j = 0; j < 10; j++)
 			{
 				map.generateAt(i+x,j+y);
+				progress.attributes.value.value++;
 			}
 		}
-		console.log('loaded '+(x+i-1)+','+(y+j-1));
+		// console.log('loaded '+(x+i-1)+','+(y+j-1));
 		if(10+x<=map.rows-1)
 		{
 			setTimeout(function(){generateNext(map,x+10,y)},0);
