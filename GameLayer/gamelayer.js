@@ -15,7 +15,7 @@ var arbKFactor = 1000;
 var arbRValue = .5;
 var paused;
 var map, mapshape;
-var progress;
+var progress, timer;
 
 Settlement.prototype = new createjs.Shape();
 Settlement.prototype.constructor = Settlement;
@@ -41,7 +41,7 @@ function mapReady()
 
 function initMap()
 {
-	var timer = + new Date();
+	timer = + new Date();
 	// mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
 	// Edit the array in the next line to change map.
 	// Those are seeds to generate the random maps
