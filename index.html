@@ -1,0 +1,55 @@
+<html>
+<head>
+	<script src="js/easeljs-0.6.1.min.js"></script>
+	<script src="js/Settlement.js"></script>
+	<script src="js/gameInit.js"></script>
+	<script src="js/gamelayer.js"></script>
+	<script src="js/map.js"></script>
+	<script src="js/perlin.js"></script>
+	<script src="js/ui.js"></script>
+	<style>
+	body {
+		background-color:grey;
+	}
+	canvas{
+		background-color:white;
+		user-select: none;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		position:absolute;
+	}
+	#uiStage{
+		margin-top:450px;
+		border-top:10px solid gray;
+	}
+
+	button{
+		position:absolute;
+		width:100px;
+		height:25px;
+		border-radius: 8px;
+		border: 1px solid black;
+		background-color:rgba(200,200,200,0.5);
+		/*opacity: 1;*/
+	}
+	button:hover{
+		/*opacity: 0.5;*/
+		background-color:rgba(200,200,200,1);
+	}
+	p{
+		font-family: "Arial";
+		font-size:12px;
+	}
+	</style>
+</head>
+<body onLoad="initGame();">
+	<canvas id="screen" width="900" height="600"></canvas>
+	<canvas id="uiStage" width = "900" height = "150"></canvas>
+	<button id = "test" onclick = "setPause()"> Pause </button>
+	<button id = "ping" onclick = "setPing()"> Ping </button>
+	<p id = "popsize"> </p>
+	<p id = "heatPref"></p>
+	<p id = "waterPref"></p>
+	<p id = "nutrientPref"></p>
+</body>
+</html>
