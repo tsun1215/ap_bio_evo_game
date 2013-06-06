@@ -5,6 +5,7 @@ var heatPref;
 var waterPref;
 var nutrientPref;
 var popsize;
+var currentName;
 
 function initUI(){
 	contentcontainer = new createjs.Container();

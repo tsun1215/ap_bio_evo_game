@@ -1,3 +1,113 @@
+function mapArrReady()
+{
+    if(typeof mapArr.tiles[mapArr.rows-1] != "undefined" && typeof mapArr.tiles[mapArr.rows-1][mapArr.cols-1] != "undefined")
+        return true;
+    return false;
+}
+
+function initMap()
+{
+    timer = + new Date();
+    // mapArr = new Map(50,50,10, [Math.random()*10000,Math.random()*10000,Math.random()*10000]);
+    // Edit the array in the next line to change map.
+    // Those are seeds to generate the random maps
+    
+    // Initializes loading bar
+    progress = document.createElement("progress");
+    progress.setAttribute("style","position:absolute");
+    progress.setAttribute("max","100");
+    progress.setAttribute("value","0");
+    document.body.appendChild(progress);
+    mapArr = new Map(300,200,5, [1,2,3]);
+    progress.attributes.max.value=(mapArr.rows*mapArr.cols)*2;
+    mapArr.generate();
+
+    var generator = setInterval(function(){
+        if(mapArrReady())
+        {
+            drawMap();
+            clearInterval(generator);
+        }
+        else
+            return 0;
+    },0);
+}
+
+function drawMap(){
+    map = new createjs.Container();
+    stage.addChild(map);
+    map.cache(0,0,mapArr.rows*mapArr.tile_width,mapArr.cols*mapArr.tile_width);     
+
+    // Draws map in sections
+    drawNextTiles(0,0);
+    function drawNextTiles(x,y)
+    {
+        for(var i = 0; i < 10; i++)
+        {
+            for(var j = 0; j < 10; j++)
+            {
+                drawTile(i+x,j+y);
+                progress.attributes.value.value++;
+            }
+        }
+        if(10+x<=mapArr.rows-1)
+        {
+            setTimeout(function(){drawNextTiles(x+10,y)},0);
+        }
+        else if(y+10<=mapArr.cols-1)
+        {
+            setTimeout(function(){drawNextTiles(0,10+y)},0);
+        }else{
+            startGame();            
+        }
+    }
+
+    // Initializes minimap
+    // var minimap = map.clone();
+    // minimap.scaleX = .7;
+    // minimap.scaleY = .7;
+    // contentcontainer.children[0].addChild(minimap);  
+}
+
+
+function drawTile(i,j){
+    var temp = Math.floor(mapArr.tiles[i][j].attributes[0] * 255);
+    var water = Math.floor(mapArr.tiles[i][j].attributes[1] * 255);
+    var nut = Math.floor(mapArr.tiles[i][j].attributes[2] * 255);
+    var color;
+    if(water > 150)
+    {
+        var newwater = 255-water;
+        newwater += 1.24;
+        newwater *= 1.6;
+        newwater = Math.floor(newwater);
+        color = rgbToHex(0,0,newwater);
+    }
+    else if(water > 140)
+    {
+        color = rgbToHex(255,255,nut);
+    }
+    else if(water > 70)
+    {
+        color = rgbToHex(10,nut,10);
+    }
+    else
+    {
+        color = rgbToHex(255,255,nut);
+    }
+    if ( water > 100 && water < 120 && temp < 100)
+    {
+        var newwater = Math.floor(2 * (255-water));
+        newwater = (newwater >255 ? 255: newwater);
+        color = rgbToHex(newwater,newwater,newwater);
+    }
+    var pixel = new createjs.Shape();
+    pixel.graphics.beginFill(color).drawRect(0,0,mapArr.tile_width,mapArr.tile_width);
+    pixel.x = i*mapArr.tile_width;
+    pixel.y = j*mapArr.tile_width;
+    map.addChild(pixel);
+}
+
 function Map(rows, cols, tile_width, seeds)
 {
 	this.tiles = new Array();
