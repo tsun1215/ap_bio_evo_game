@@ -209,6 +209,7 @@ Map.prototype.mutilate = function(change,index,speed)
 Tile.prototype.update = function(change,index)
 {
 	this.attributes[index] *= change;
+	this.attribute[index] = (this.attribute[index] > 1 ? .99999999 : this.attribute[index]);
 	var temp = Math.floor(this.attributes[0] * 255);
     var water = Math.floor(this.attributes[1] * 255);
     var nut = Math.floor(this.attributes[2] * 255);
