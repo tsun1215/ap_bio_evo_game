@@ -87,10 +87,9 @@ function showDialog(text){
     // }
     // contentcontainer.removeAllChildren();
     var dBox = new createjs.Shape();
-    dBox.graphics.beginStroke("black").beginFill("#FFFFFF").drawRect(0,0,900,150);
-    dBox.x = 0;
-    dBox.y = 450;
+    dBox.graphics.beginFill("#fff").drawRect(0,0,900,150);
     contentcontainer.addChild(dBox);
+    console.log(dBox);
     uiStage.update();
 
     document.getElementById("dialog").innerHTML = text;
