@@ -21,7 +21,7 @@ function initUI(){
 	testing3.graphics.beginFill("#00F").drawRect(0,0,200,150);
 	controlContainer.addChild(testing3);
 
-	pause = document.getElementById("test");
+	pause = document.getElementById("pause");
 	var pauseButton = new createjs.DOMElement(pause);
 	pauseButton.x = 50;
 	pauseButton.y = 475;

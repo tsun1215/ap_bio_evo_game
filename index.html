@@ -40,12 +40,22 @@
 		font-family: "Arial";
 		font-size:12px;
 	}
+	
+	.activated
+	{
+		background-color:rgba(255,0,0,.5);
+	}
+	
+	.activated:hover
+	{
+		background-color:rgba(255,0,0,1);
+	}
 	</style>
 </head>
 <body onLoad="initGame();">
 	<canvas id="screen" width="900" height="600"></canvas>
 	<canvas id="uiStage" width = "900" height = "150"></canvas>
-	<button id = "test" onclick = "setPause()"> Pause </button>
+	<button id = "pause" onclick = "setPause()"> Pause </button>
 	<button id = "ping" onclick = "setPing()"> Ping </button>
 	<p id = "popsize"> </p>
 	<p id = "heatPref"></p>

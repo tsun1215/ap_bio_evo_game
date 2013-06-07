@@ -1,8 +1,6 @@
 function mapArrReady()
 {
-    if(typeof mapArr.tiles[mapArr.rows-1] != "undefined" && typeof mapArr.tiles[mapArr.rows-1][mapArr.cols-1] != "undefined")
-        return true;
-    return false;
+    return this.ready;
 }
 
 function initMap()
@@ -115,7 +113,7 @@ function Map(rows, cols, tile_width, seeds)
 	this.cols = cols;
 	this.tile_width = tile_width;
 	this.seeds = seeds;
-
+	this.ready = false;
 }
 
 Map.prototype.generatePerlin = Map.prototype.generate = function()
@@ -145,6 +143,10 @@ Map.prototype.generatePerlin = Map.prototype.generate = function()
 		{
 			setTimeout(function(){generateNext(map,0,10+y)},0);
 		}
+		else
+		{
+			this.ready = true;
+		}
 	}
 
 }
@@ -162,10 +164,11 @@ Map.prototype.generateAt = function(i,j)
 {
 	var si = i/this.rows * 3.5;
 	var sj = j/this.cols * 3.5;
-	var temp = PerlinNoise.noise( si, sj, this.seeds[0]);
-	var water = PerlinNoise.noise( si, sj, this.seeds[1]);
-	var nut = PerlinNoise.noise( si, sj, this.seeds[2]);
-	var passingIn = new Array(temp, water, nut);
+	var passingIn = new Array();
+	for(var k = 0; k < this.seeds.length; k++)
+	{
+		passingIn.push(PerlinNoise.noise( si, sj, this.seeds[0]));
+	}
 	this.tiles[i][j] = new Tile(passingIn);
 }
 

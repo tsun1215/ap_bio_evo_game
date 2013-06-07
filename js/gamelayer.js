@@ -82,6 +82,7 @@ function stageEventHandler(event){
 function setPause(){
     paused = !createjs.Ticker.getPaused();
     createjs.Ticker.setPaused(paused);
+	document.getElementById('pause').className = (document.getElementById('pause').className == "" ? "activated" : "");
 }
 
 ping.prototype = new createjs.Shape();
