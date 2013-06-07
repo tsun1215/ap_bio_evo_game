@@ -75,7 +75,7 @@ function setPause(){
     if(pause){
         document.getElementById("pause").innerHTML = "Resume";
     } else{
-        document.getElementById("pause").innerHTMl = "Pause";
+        document.getElementById("pause").innerHTML = "Pause";
     }
 }
 
@@ -88,4 +88,24 @@ function ping(x,y){
     this.addEventListener("click",mouseHandler);
     this.graphics.beginStroke("black").beginFill("#F00").drawCircle(0,0,5);
     stage.addChild(this);
+}
+
+function showDialog(text){
+    // for(var i = 0; i < 3; i++){
+    //     contentcontainer.children[i].removeAllChildren();
+    // }
+    // contentcontainer.removeAllChildren();
+    var dBox = new createjs.Shape();
+    dBox.graphics.beginStroke("black").beginFill("#FFFFFF").drawRect(0,0,900,150);
+    dBox.x = 0;
+    dBox.y = 450;
+    contentcontainer.addChild(dBox);
+    uiStage.update();
+
+    document.getElementById("dialog").innerHTML = text;
+    var dialog = new createjs.DOMElement(document.getElementById("dialog"));
+    dialog.x = 450;
+    dialog.y = 500;
+    contentcontainer.addChild(dialog);
+
 }
