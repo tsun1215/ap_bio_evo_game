@@ -128,6 +128,7 @@ function showDialog(text, pause){
     heatPref.htmlElement.style.display = "none";
     waterPref.htmlElement.style.display = "none";
     nutrientPref.htmlElement.style.display = "none";
+    species.htmlElement.style.display = "none";
     document.getElementById("continue").style.display = "block";
     document.getElementById("pause").style.display = "none";
     if(pause){
@@ -142,6 +143,7 @@ function resume(){
     heatPref.htmlElement.style.display = "block";
     waterPref.htmlElement.style.display = "block";
     nutrientPref.htmlElement.style.display = "block";
+    species.htmlElement.style.display = "block";
     document.getElementById("continue").style.display = "none";
     document.getElementById("pause").style.display = "block";
 
