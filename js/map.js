@@ -201,7 +201,9 @@ Map.prototype.mutilate = function(change,index,speed)
 		else if(y+chunkHeight<=map.cols-1)
 		{
 			setTimeout(function(){changeNext(map,0,chunkHeight+y)},speed);
-		}
+		}else{
+            map.updateCache();
+        }
 	}
 }
 
