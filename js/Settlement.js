@@ -64,9 +64,11 @@ Settlement.prototype.setAttributes = function(traitlist){
 }
 
 Settlement.prototype.resetColor = function(){
-    var colorChange = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]));
+	console.log(this.traits.list[0]);
+    var colorChange = rgbToHex(Math.floor(255*Math.pow(this.traits.list[0],3)),Math.floor(255*Math.pow(this.traits.list[1],3)),Math.floor(Math.pow(255*this.traits.list[2],3)));
     this.color = colorChange;
-    this.graphics.clear().beginStroke("black").beginFill(colorChange).drawCircle(0,0,8);
+	var size = (Math.log(this.population/200)+1)*8;
+    this.graphics.clear().beginStroke("black").beginFill(colorChange).drawCircle(0,0,size);
 }
 
 Settlement.prototype.survival = function(){

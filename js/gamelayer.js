@@ -1,7 +1,7 @@
 function refresh(event) {
     if(!createjs.Ticker.getPaused()){
         if(createjs.Ticker.getTicks() % 45 == 0){
-            natDisaster();
+            //natDisaster();
             for(i in sList){
                 sList[i].survival();
                 sList[i].resetColor();
@@ -12,7 +12,7 @@ function refresh(event) {
             if(selectedPop){
                 updateUI(selectedPop);
             }
-            natDisaster = null;
+            //natDisaster = null;
         }
         if(createjs.Ticker.getTicks() % 225 == 0){
             console.log("Recalculating traits");
