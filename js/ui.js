@@ -89,7 +89,7 @@ function updateUI(focus){
 	currentPop.htmlElement.innerHTML = "Current Population";
 	popsize.htmlElement.innerHTML = "Population size: " + focus.population;
 	heatPref.htmlElement.innerHTML = "Percentage Prefering High Temperature: " + (focus.traits.list[2] * 100).toFixed(2) + "%";
-	waterPref.htmlElement.innerHTML = "Percentage Prefering High Humidity " + (focus.traits.list[1] * 100).toFixed(2) + "%";
+	waterPref.htmlElement.innerHTML = "Percentage Prefering High Humidity: " + (focus.traits.list[1] * 100).toFixed(2) + "%";
 	species.htmlElement.innerHTML = "Species Number: " + focus.speciesNumber;
 	// nutrientPref.htmlElement.innerHTML = "Nutrient Preference: " + focus.traits.list[2];
 }

@@ -46,6 +46,19 @@ Settlement.prototype.speciate = function(){
 
 Settlement.prototype.death = function() {
     this.population = 0;
+    shown_death = true;
+    if(tutIndex > 5 && tutIndex<15){
+        if(shown_death){
+            showDialog("A population has died! You are bad <br/> \
+                and you should feel bad!", false);
+        }else{            
+            showDialog("Success is not universal as the environment is not kind. <br/> \
+                Individuals and populations, too, are unfortunately maligned. <br/> \
+                Survival is difficult as many fall victim to the wrath of Mother Earth, <br/> \
+                Genetic variation due to a dearth.", false);
+            continue_tut = false; 
+        }
+    }
 }
 
 Settlement.prototype.moveTo = function(xCoord, yCoord){
@@ -62,6 +75,8 @@ Settlement.prototype.splitTo = function(xCoord, yCoord, splitPop){
         settle.destinationX = xCoord;
         settle.destinationY = yCoord;
         this.population = this.population - this.movingPop;
+        var loc = stage.localToGlobal(xCoord, yCoord);
+        settle.checkMerge(loc.x, loc.y);
     }
 }
 
@@ -92,6 +107,9 @@ Settlement.prototype.survival = function(){
     if(this.movingPop > this.population || this.movingPop == this.previousPop) {
         this.movingPop = this.population;
         updatePopAdjuster();
+    }
+    if(this.population<0){
+        this.death();
     }
 }
 

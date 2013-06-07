@@ -15,9 +15,24 @@ var chunkHeight = 50;
 var progress, timer; 
 
 function initGame() {
+    if(stage!=null){
+        stage.removeAllChildren();
+        stage.removeAllEventListeners();
+    }
     stage = new createjs.Stage("screen");
     uiStage = new createjs.Stage("uiStage");
     stage.enableMouseOver(10);
+    if(sList != null){
+        for(s in sList){
+            stage.removeChild(sList[s]);
+            stage.removeChild(sList[s].popTag);
+            sList[s].removeAllEventListeners();
+            sList[s] = null;
+        }
+        stage.removeEventListener('stagemousemove', stageEventHandler);
+        stage.removeEventListener('click', stageEventHandler);
+        contentcontainer.children[1].removeAllChildren();
+    }
     sList = new Array();
     focus = null;
     selectedPop = null;
@@ -243,12 +258,13 @@ function MouseWheelHandler(e) {
             }
         }
         updatePopAdjuster();        
-    }else{
-        if(e.wheelDelta != 0)
-        {
-            zoomOnce(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail))));
-        }
     }
+    // else{
+    //     if(e.wheelDelta != 0)
+    //     {
+    //         zoomOnce(Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail))));
+    //     }
+    // }
 }
 
 function zoomOnce(n) {   
