@@ -89,9 +89,11 @@ function showDialog(text){
     //     contentcontainer.children[i].removeAllChildren();
     // }
     // contentcontainer.removeAllChildren();
-    dBox = new createjs.Shape();
-    dBox.graphics.beginFill("#fff").drawRect(0,0,900,150);
-    contentcontainer.addChild(dBox);
+    if(dBox == null){
+        dBox = new createjs.Shape();
+        dBox.graphics.beginFill("#fff").drawRect(0,0,900,150);
+        contentcontainer.addChild(dBox);
+    }
 
     document.getElementById("dialog").innerHTML = text;
     dialog = new createjs.DOMElement(document.getElementById("dialog"));
@@ -105,7 +107,7 @@ function showDialog(text){
     nutrientPref.htmlElement.style.display = "none";
     document.getElementById("continue").style.display = "block";
     document.getElementById("pause").style.display = "none";
-    setPause();
+    createjs.Ticker.setPaused(true);
     uiStage.update();
 }
 
@@ -119,5 +121,5 @@ function resume(){
 
     document.getElementById("dialog").innerHTML = "";
     contentcontainer.removeChild(dialog, dBox);
-    setPause();
+    createjs.Ticker.setPaused(false);
 }
