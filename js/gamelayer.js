@@ -1,7 +1,12 @@
 function refresh(event) {
     if(!createjs.Ticker.getPaused()){
         if(createjs.Ticker.getTicks() % 45 == 0){
+<<<<<<< HEAD
             //natDisaster();
+=======
+            // mapArr.natDisaster();
+            // mapArr.disasterRun();
+>>>>>>> cf07a65a89cc0fed360dca9c96f78cab03baddc9
             for(i in sList){
                 sList[i].survival();
                 sList[i].resetColor();
@@ -9,10 +14,14 @@ function refresh(event) {
                     sList[i].moveTo(-10+sList[i].x+Math.random()*20, -10+sList[i].y+Math.random()*20);
                 }
             }
+
             if(selectedPop){
                 updateUI(selectedPop);
             }
+<<<<<<< HEAD
             //natDisaster = null;
+=======
+>>>>>>> cf07a65a89cc0fed360dca9c96f78cab03baddc9
         }
         if(createjs.Ticker.getTicks() % 225 == 0){
             console.log("Recalculating traits");

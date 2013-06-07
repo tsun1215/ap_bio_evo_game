@@ -73,11 +73,11 @@ Settlement.prototype.resetColor = function(){
 
 Settlement.prototype.survival = function(){
     var ovRate = 1;
-    var k = this.map.getTileAt(this.x, this.y).attributes[2]*1000;
+    var k = this.map.getTileAt(this.x, this.y).attributes[0]*1000;
     for (var i = 1; i < this.traits.list.length; i++){
         ovRate = this.surviveFactor(i) * ovRate;
     }
-    console.log(k);
+    console.log("Carrying Capcity: "+k);
     this.previousPop = this.population;
     this.population = this.population + Math.floor(ovRate * (this.population * (1 - (this.population/k))));
     //Math.floor(this.population*ovRate);
@@ -91,12 +91,12 @@ Settlement.prototype.surviveFactor = function(factor){
     
     var fact =  this.map.getTileAt(this.x,this.y).attributes[factor] * 100;
     // var calcInt = fact * 2;
-    console.log(fact);
+    // console.log(fact);
     // var domGrowthRate;
     // var recGrowthRate;
     // var calcDiff = (fact/50);
     var pref = this.traits.list[factor];
-    console.log(pref);
+    // console.log(pref);
     var Diff = Math.abs(pref*100 - fact);
     //console.log(calcDiff);
     //if (fact > 50){
@@ -115,7 +115,7 @@ Settlement.prototype.surviveFactor = function(factor){
     // this.traits.list[factor] = domGrowthRate/(domGrowthRate + recGrowthRate);
     // this.traits.list[factor] = pref + totalGrowth*(fact/100 - pref)/evoFactor;
     // var totalGrowth = domGrowthRate + recGrowthRate;
-    console.log(totalGrowth);
+    // console.log(totalGrowth);
     return totalGrowth;
     // this.population = Math.floor(this.population*totalGrowth);
     
