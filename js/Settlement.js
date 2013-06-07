@@ -71,7 +71,7 @@ Settlement.prototype.resetColor = function(){
 
 Settlement.prototype.survival = function(){
     var ovRate = 1;
-    var k = this.map.getTileAt(this.x, this.y).attributes[2]*1000;
+    var k = this.map.getTileAt(this.x, this.y).attributes[0]*1000;
     for (var i = 1; i < this.traits.list.length; i++){
         ovRate = this.surviveFactor(i) * ovRate;
     }
