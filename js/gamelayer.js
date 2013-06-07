@@ -107,9 +107,11 @@ function showDialog(text, pause){
     //     contentcontainer.children[i].removeAllChildren();
     // }
     // contentcontainer.removeAllChildren();
-    dBox = new createjs.Shape();
-    dBox.graphics.beginFill("#fff").drawRect(0,0,900,150);
-    contentcontainer.addChild(dBox);
+    if(dBox == null){
+        dBox = new createjs.Shape();
+        dBox.graphics.beginFill("#fff").drawRect(0,0,900,150);
+        contentcontainer.addChild(dBox);
+    }
 
     document.getElementById("dialog").innerHTML = text;
     dialog = new createjs.DOMElement(document.getElementById("dialog"));
@@ -124,7 +126,7 @@ function showDialog(text, pause){
     document.getElementById("continue").style.display = "block";
     document.getElementById("pause").style.display = "none";
     if(pause){
-        setPause();
+        createjs.Ticker.setPaused(true);
     }
     uiStage.update();
 }
@@ -140,5 +142,5 @@ function resume(){
     document.getElementById("dialog").innerHTML = "";
     contentcontainer.removeChild(dialog, dBox);
     continue_tut = true;
-    setPause();
+    createjs.Ticker.setPaused(false);
 }
