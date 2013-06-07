@@ -1,8 +1,6 @@
 function mapArrReady()
 {
-    if(typeof mapArr.tiles[mapArr.rows-1] != "undefined" && typeof mapArr.tiles[mapArr.rows-1][mapArr.cols-1] != "undefined")
-        return true;
-    return false;
+    return this.ready;
 }
 
 function initMap()
@@ -115,7 +113,7 @@ function Map(rows, cols, tile_width, seeds)
 	this.cols = cols;
 	this.tile_width = tile_width;
 	this.seeds = seeds;
-
+	this.ready = false;
 }
 
 Map.prototype.generatePerlin = Map.prototype.generate = function()
@@ -144,6 +142,10 @@ Map.prototype.generatePerlin = Map.prototype.generate = function()
 		else if(y+10<=map.cols-1)
 		{
 			setTimeout(function(){generateNext(map,0,10+y)},0);
+		}
+		else
+		{
+			this.ready = true;
 		}
 	}
 
