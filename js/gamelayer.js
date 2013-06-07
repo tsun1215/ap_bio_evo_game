@@ -1,8 +1,7 @@
 function refresh(event) {
     if(!createjs.Ticker.getPaused()){
         if(createjs.Ticker.getTicks() % 45 == 0){
-            // mapArr.natDisaster();
-            // mapArr.disasterRun();
+            mapArr.natDisaster();
             for(i in sList){
                 sList[i].survival();
                 sList[i].resetColor();
