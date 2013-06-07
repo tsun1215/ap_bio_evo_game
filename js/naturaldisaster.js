@@ -35,6 +35,6 @@ Map.prototype.disasterRun = function(){
 	} else {
 		disastSeverity = 1.5;
 	}
-	// this.mutilate(disastSeverity, factorAffected, 500);
+	this.mutilate(disastSeverity, factorAffected, 1500);
 	currentDisaster = null;
 }
