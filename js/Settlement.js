@@ -70,7 +70,7 @@ Settlement.prototype.setAttributes = function(traitlist){
 }
 
 Settlement.prototype.resetColor = function(){
-	console.log(this.traits.list[0]);
+	// console.log(this.traits.list[0]);
     var colorChange = rgbToHex(Math.floor(255*Math.pow(this.traits.list[0],2)),Math.floor(255*Math.pow(this.traits.list[1],2)),Math.floor(Math.pow(255*this.traits.list[2],2)));
     this.color = colorChange;
 	var size = (Math.log(Math.abs(this.population)/200 + 2))*8;
@@ -83,9 +83,12 @@ Settlement.prototype.survival = function(){
     for (var i = 1; i < this.traits.list.length; i++){
         ovRate = this.surviveFactor(i) * ovRate;
     }
+    console.log(ovRate);
     console.log("Carrying Capcity: "+k);
     this.previousPop = this.population;
+    console.log(this.previousPop);
     this.population = this.population + Math.floor(ovRate * (this.population * (1 - (this.population/k))));
+    console.log(this.population);
     //Math.floor(this.population*ovRate);
     if(this.movingPop > this.population || this.movingPop == this.previousPop) {
         this.movingPop = this.population;
