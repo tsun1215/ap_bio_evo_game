@@ -4,6 +4,9 @@ function refresh(event) {
             for(i in sList){
                 sList[i].survival();
                 sList[i].resetColor();
+                if(Math.random()<0.4){
+                    sList[i].moveTo(-10+sList[i].x+Math.random()*20, -10+sList[i].y+Math.random()*20);
+                }
             }
             if(selectedPop){
                 updateUI(selectedPop);

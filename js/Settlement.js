@@ -81,6 +81,11 @@ Settlement.prototype.survival = function(){
         this.movingPop = this.population;
         updatePopAdjuster();
     }
+
+    if(Math.random()<.05){
+        console.log("Natural disaster");
+        this.population-=Math.round(Math.random()*k+200);
+    }
     // var calcInt = interval;
     // console.log(this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes);
     // var temp =  this.map.tiles[Math.floor(this.x / 16)][Math.floor(this.y / 16)].attributes[0] * 100;
