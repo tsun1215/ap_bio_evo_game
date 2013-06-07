@@ -8,8 +8,8 @@ var sight; // Shadow of where to move population
 var uiStage; // The UI Stage; displays info
 var mapArr; // THe Map object
 var paused;
-var chunkWidth = 10;
-var chunkHeight = 10;
+var chunkWidth = 5;
+var chunkHeight = 5;
 
 // Used for debugging and loading
 var progress, timer; 

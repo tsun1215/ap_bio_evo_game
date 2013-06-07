@@ -188,6 +188,23 @@ Map.prototype.chunkChange = function(x,y,change,index)
 	map.updateCache();
 }
 
+Map.prototype.mutilate = function(change,index,speed)
+{
+	changeNext(this,0,0);
+	function changeNext(map,x,y)
+	{
+		map.chunkChange(x,y,change,index);
+		if(chunkWidth+x<=map.rows-1)
+		{
+			setTimeout(function(){changeNext(map,x+chunkWidth,y)},speed);
+		}
+		else if(y+chunkHeight<=map.cols-1)
+		{
+			setTimeout(function(){changeNext(map,0,chunkHeight+y)},speed);
+		}
+	}
+}
+
 Tile.prototype.update = function(change,index)
 {
 	this.attributes[index] *= change;
