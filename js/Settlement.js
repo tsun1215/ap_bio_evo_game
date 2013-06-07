@@ -67,7 +67,7 @@ Settlement.prototype.resetColor = function(){
 	console.log(this.traits.list[0]);
     var colorChange = rgbToHex(Math.floor(255*Math.pow(this.traits.list[0],3)),Math.floor(255*Math.pow(this.traits.list[1],3)),Math.floor(Math.pow(255*this.traits.list[2],3)));
     this.color = colorChange;
-	var size = (Math.log(this.population/200)+1)*8;
+	var size = (Math.log(Math.abs(this.population)/200 + 1))*8;
     this.graphics.clear().beginStroke("black").beginFill(colorChange).drawCircle(0,0,size);
 }
 
