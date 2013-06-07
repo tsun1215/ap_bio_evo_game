@@ -183,25 +183,24 @@ Map.prototype.chunkChange = function(x,y,change,index)
 {
 	for(var i = 0; i<chunkWidth; i++)
 		for(var j = 0; j < chunkHeight; j++)
-			this.tiles[x+i][y+j].update(change,index);
-		
-	
+			this.tiles[x+i][y+j].update(change,index);	
 }
 
 Map.prototype.mutilate = function(change,index,speed)
 {
 	changeNext(this,0,0);
-	function changeNext(map,x,y)
+	function changeNext(map_obj,x,y)
 	{
-		map.chunkChange(x,y,change,index);
-		if(chunkWidth+x<=map.rows-1)
+		map_obj.chunkChange(x,y,change,index);
+		if(chunkWidth+x<=map_obj.rows-1)
 		{
-			setTimeout(function(){changeNext(map,x+chunkWidth,y)},speed);
+			setTimeout(function(){changeNext(map_obj,x+chunkWidth,y)},speed);
 		}
-		else if(y+chunkHeight<=map.cols-1)
+		else if(y+chunkHeight<=map_obj.cols-1)
 		{
-			setTimeout(function(){changeNext(map,0,chunkHeight+y)},speed);
+			setTimeout(function(){changeNext(map_obj,0,chunkHeight+y)},speed);
 		}else{
+            console.log("update");
             map.updateCache();
         }
 	}
