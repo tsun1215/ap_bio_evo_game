@@ -47,7 +47,7 @@ function runTutorial(){
                 A variety of forces can cause quite the stir <br/> \
                 That will fell even the mightiest conifer.", false);
             setTimeout(function(){
-                currentDisaster = 12;
+                currentDisaster = 11;
                 mapArr.disasterRun();
                 setTimeout(function(){                
                     showDialog("<strong>A natural disaster has occured!</strong> <br/>The surrounding environment has changed.");

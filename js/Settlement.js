@@ -79,13 +79,15 @@ Settlement.prototype.resetColor = function(){
 
 Settlement.prototype.survival = function(){
     var ovRate = 1;
+    // var k = arbKFactor;
     var k = this.map.getTileAt(this.x, this.y).attributes[0]*1000;
     for (var i = 1; i < this.traits.list.length; i++){
         ovRate = this.surviveFactor(i) * ovRate;
     }
+    k = k * ovRate;
     console.log("Carrying Capcity: "+k);
     this.previousPop = this.population;
-    this.population = this.population + Math.floor(ovRate * (this.population * (1 - (this.population/k))));
+    this.population = this.population + Math.floor(arbRValue * (this.population * (1 - (this.population/k))));
     //Math.floor(this.population*ovRate);
     if(this.movingPop > this.population || this.movingPop == this.previousPop) {
         this.movingPop = this.population;
@@ -98,44 +100,48 @@ Settlement.prototype.surviveFactor = function(factor){
     var fact =  this.map.getTileAt(this.x,this.y).attributes[factor] * 100;
     // var calcInt = fact * 2;
     // console.log(fact);
-    // var domGrowthRate;
-    // var recGrowthRate;
-    // var calcDiff = (fact/50);
+    var domGrowthRate;
+    var recGrowthRate;
+    var calcDiff = (fact/50);
     var pref = this.traits.list[factor];
-    // console.log(pref);
+    console.log(pref);
     var Diff = Math.abs(pref*100 - fact);
     //console.log(calcDiff);
-    //if (fact > 50){
-    // domGrowthRate = this.traits.list[factor] * calcDiff;
-    // recGrowthRate = (1-this.traits.list[factor]) * (1.9-calcDiff); 
-    if (Diff <= 10){
-        totalGrowth = 4 - ((Diff * Diff)/100);
-    } else {
-        totalGrowth = 10/Diff;
-    }
-    //}
+    // if (fact > 50){
+    var traitCheck = this.traits.list[factor] - .5;
+    domGrowthRate = this.traits.list[factor] * calcDiff;
+    recGrowthRate = (1-this.traits.list[factor]) * (1.9-calcDiff); 
+    // }
+    // if (Diff <= 10){
+    //     totalGrowth = 2 - (Diff/10);
+    // } else {
+    //     totalGrowth = 10/Diff;
+    // }
     // if (fact < 50){
     //  domGrowthRate = this.traits.list[factor] * (-calcDiff);
     //  recGrowthRate = (1-this.traits.list[factor]) * calcDiff; 
     // }
-    // this.traits.list[factor] = domGrowthRate/(domGrowthRate + recGrowthRate);
+    this.traits.list[factor] = domGrowthRate/(domGrowthRate + recGrowthRate);
+    if ((this.traits.list[factor] - .5)/traitCheck < 0){
+        this.speciate();
+    }
     // this.traits.list[factor] = pref + totalGrowth*(fact/100 - pref)/evoFactor;
-    // var totalGrowth = domGrowthRate + recGrowthRate;
+    var totalGrowth = domGrowthRate + recGrowthRate;
     // console.log(totalGrowth);
     return totalGrowth;
     // this.population = Math.floor(this.population*totalGrowth);
     
 }
 
-Settlement.prototype.adapt = function(){
-    for (var x = 1; x < this.traits.list.length; x++){    
-        var traitCheck = this.traits.list[x] - .5;
-        this.traits.list[x] = this.traits.list[x] + ((this.map.getTileAt(this.x, this.y).attributes[x]) - this.traits.list[x])/evoFactor;
-        if ((this.traits.list[x] - .5)/traitCheck < 0){
-        this.speciate();
-        }
-    }
-}
+// Settlement.prototype.adapt = function(){
+//     for (var x = 1; x < this.traits.list.length; x++){    
+//         var traitCheck = this.traits.list[x] - .5;
+//         this.traits.list[x] = this.traits.list[x] + ((this.map.getTileAt(this.x, this.y).attributes[x]) - this.traits.list[x])/evoFactor;
+//         if ((this.traits.list[x] - .5)/traitCheck < 0){
+//         this.speciate();
+//         }
+//     }
+// }
 
 Settlement.prototype.migrateOnce = function(speed){
     var totalMovement = speed;
