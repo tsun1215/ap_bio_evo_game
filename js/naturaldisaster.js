@@ -20,7 +20,8 @@ Map.prototype.natDisaster = function(){
 			if(index < naturalDisasters[x][y]){
 				currentDisaster = x * 10 + y;
 				disastX = Math.abs(Math.random()*(Map.cols - chunkWidth));
-				disastY = Math.abs(Math.random()*(Map.rows - chunkLength)); 
+				disastY = Math.abs(Math.random()*(Map.rows - chunkHeight)); 
+				this.disasterRun();
 				return;
 			}
 		}
