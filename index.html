@@ -51,6 +51,9 @@
 	#continue{
 		display:none;
 	}
+	#currentPop{
+		font-size: 24px;
+	}
 	progress
 	{
 		position:absolute;
@@ -100,11 +103,12 @@ background-image: radial-gradient(circle farthest-corner at center, #FFFFFF 0%, 
 	<canvas id="uiStage" width = "900" height = "150"></canvas>
 	<button id = "pause" onclick = "setPause()"> Pause </button>
 	<button id = "continue" onclick = "resume()">Continue</button>
+	<p id = "currentPop"> </p>
 	<p id = "popsize"> </p>
 	<p id = "heatPref"></p>
 	<p id = "waterPref"></p>
 	<p id = "nutrientPref"></p>
 	<p id = "dialog"></p>
-	<object height="0px" style="width:0;height:0;padding:0;margin:0;" width="10px" data="http://www.nyan.cat/music/original.mp3"></object>
+	<!--<object height="0px" style="width:0;height:0;padding:0;margin:0;" width="10px" data="http://www.nyan.cat/music/original.mp3"></object>-->
 </body>
 </html>

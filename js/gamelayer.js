@@ -1,10 +1,14 @@
 var dBox;
 var dialog;
 var movementFreq = 0;
+var tutorial_ticker = 0;
 
 function refresh(event) {
     if(continue_tut && !createjs.Ticker.getPaused()){
-        runTutorial();
+        tutorial_ticker++;
+        if(tutorial_ticker%200==0){
+            runTutorial();
+        }
     }
     if(!createjs.Ticker.getPaused()){
         if(createjs.Ticker.getTicks() % 45 == 0){
@@ -119,6 +123,7 @@ function showDialog(text, pause){
     dialog.y = 470;
     contentcontainer.addChild(dialog);
 
+    currentPop.htmlElement.style.display = "none";
     popsize.htmlElement.style.display = "none";
     heatPref.htmlElement.style.display = "none";
     waterPref.htmlElement.style.display = "none";
@@ -132,6 +137,7 @@ function showDialog(text, pause){
 }
 
 function resume(){
+    currentPop.htmlElement.style.display = "block";
     popsize.htmlElement.style.display = "block";
     heatPref.htmlElement.style.display = "block";
     waterPref.htmlElement.style.display = "block";

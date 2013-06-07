@@ -32,6 +32,11 @@ function initUI(){
 	cButton.y = 475;
 	controlContainer.addChild(cButton);
 
+	currentPop = new createjs.DOMElement(document.getElementById("currentPop"));
+	currentPop.x = 175;
+	currentPop.y = 460;
+	mainContainer.addChild(currentPop);
+
 	popsize = new createjs.DOMElement(document.getElementById("popsize"));
 	popsize.x = 10;
 	popsize.y = 500;
@@ -68,21 +73,17 @@ function initUI(){
 
 function updateUI(focus){
 	contentcontainer.children[1].removeAllChildren();
-	currentName = new createjs.Text("Current Population", "24px Arial", "#000");
-	currentName.x = 175;
-	currentName.y = 10;
-	contentcontainer.children[1].addChild(currentName);
 
-    // popsize.htmlElement.style.display = "block";
-    // heatPref.htmlElement.style.display = "block";
-    // waterPref.htmlElement.style.display = "block";
-    // nutrientPref.htmlElement.style.display = "block";
-    // document.getElementById("pause").style.display = "block";
+	// popsize.htmlElement.style.display = "block";
+	// heatPref.htmlElement.style.display = "block";
+	// waterPref.htmlElement.style.display = "block";
+	// nutrientPref.htmlElement.style.display = "block";
+	// document.getElementById("pause").style.display = "block";
 
+	currentPop.htmlElement.innerHTML = "Current Population";
 	popsize.htmlElement.innerHTML = "Population size: " + focus.population;
 	heatPref.htmlElement.innerHTML = "Heat Preference: " + focus.traits.list[0];
 	waterPref.htmlElement.innerHTML = "Water Preference: " + focus.traits.list[1];
 	nutrientPref.htmlElement.innerHTML = "Nutrient Preference: " + focus.traits.list[2];
-
 }
 
