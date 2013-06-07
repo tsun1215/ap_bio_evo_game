@@ -167,7 +167,7 @@ function addEventListeners(){
                 }
                 else if(newY < stage.canvas.height-((mapArr.cols*mapArr.tile_width)*stage.scaleY))
                 {
-                    newY = stage.canvas.height-((mapArr.cols*mapArr.tile_width)*stage.scaleX);
+                    newY = stage.canvas.height-((mapArr.cols*mapArr.tile_width)*stage.scaleY);
                 }
                 stage.x = newX;
                 stage.y = newY;
