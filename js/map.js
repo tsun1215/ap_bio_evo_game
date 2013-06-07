@@ -200,7 +200,6 @@ Map.prototype.mutilate = function(change,index,speed)
 		{
 			setTimeout(function(){changeNext(map_obj,0,chunkHeight+y)},speed);
 		}else{
-            console.log("update");
             map.updateCache();
         }
 	}

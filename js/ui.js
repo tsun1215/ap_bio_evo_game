@@ -28,10 +28,10 @@ function initUI(){
 	pauseButton.y = 475;
 	controlContainer.addChild(pauseButton);
 
-	var pingButton = new createjs.DOMElement(document.getElementById("ping"));
-	pingButton.x = 50;
-	pingButton.y = 505;
-	controlContainer.addChild(pingButton);
+	var cButton = new createjs.DOMElement(document.getElementById("continue"));
+	cButton.x = 50;
+	cButton.y = 475;
+	controlContainer.addChild(cButton);
 
 	popsize = new createjs.DOMElement(document.getElementById("popsize"));
 	popsize.x = 10;
@@ -79,31 +79,17 @@ function updateUI(focus){
 	currentName.y = 10;
 	contentcontainer.children[1].addChild(currentName);
 
+    // popsize.htmlElement.style.display = "block";
+    // heatPref.htmlElement.style.display = "block";
+    // waterPref.htmlElement.style.display = "block";
+    // nutrientPref.htmlElement.style.display = "block";
+    // document.getElementById("pause").style.display = "block";
+
 	popsize.htmlElement.innerHTML = "Population size: " + focus.population;
 	heatPref.htmlElement.innerHTML = "Prefered Temperature: " + (focus.traits.list[2] * 100).toFixed(2) + " F";
 	waterPref.htmlElement.innerHTML = "Humidity Preference " + (focus.traits.list[1] * 100).toFixed(2) + "%";
 	species.htmlElement.innerHTML = "Species Number: " + focus.speciesNumber;
 	// nutrientPref.htmlElement.innerHTML = "Nutrient Preference: " + focus.traits.list[2];
 
-	// currentPop = new createjs.Text("Population size: " + focus.population, "12px Arial", "#000");
-	// currentPop.x = 10;
-	// currentPop.y =50;
-	// contentcontainer.children[1].addChild(currentPop);
-
-
-	// heatPref = new createjs.Text("Heat preference:       " + focus.traits.list[0], "12px Arial", "#000");
-	// heatPref.x = 10;
-	// heatPref.y = 70;
-	// contentcontainer.children[1].addChild(heatPref);
-
-	// waterPref = new createjs.Text("Water preference:     " + focus.traits.list[0], "12px Arial", "#000");
-	// waterPref.x = 10;
-	// waterPref.y = 90;
-	// contentcontainer.children[1].addChild(waterPref);
-
-	// nutPref = new createjs.Text("Nutrient preference: " + focus.traits.list[0], "12px Arial", "#000");
-	// nutPref.x = 10;
-	// nutPref.y = 110;
-	// contentcontainer.children[1].addChild(nutPref);
 }
 

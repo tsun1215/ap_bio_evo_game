@@ -1,4 +1,11 @@
+var dBox;
+var dialog;
+var movementFreq = 0;
+
 function refresh(event) {
+    if(continue_tut && !createjs.Ticker.getPaused()){
+        runTutorial();
+    }
     if(!createjs.Ticker.getPaused()){
         if(createjs.Ticker.getTicks() % 45 == 0){
             // mapArr.natDisaster();
@@ -7,7 +14,7 @@ function refresh(event) {
             for(i in sList){
                 sList[i].survival();
                 sList[i].resetColor();
-                if(Math.random()<0.4){
+                if(Math.random()<movementFreq){
                     if(focus!=sList[i] && sList[i].destinationX == sList[i].x && sList[i].destinationY == sList[i].y){
                         sList[i].moveTo(-20+sList[i].x+Math.random()*40, -20+sList[i].y+Math.random()*40);
                     }
@@ -19,7 +26,7 @@ function refresh(event) {
             }
         }
         if(createjs.Ticker.getTicks() % 225 == 0){
-            console.log("Recalculating traits");
+            // console.log("Recalculating traits");
             for(i in sList){
                 sList[i].adapt();
             }
@@ -86,16 +93,54 @@ function stageEventHandler(event){
 function setPause(){
     paused = !createjs.Ticker.getPaused();
     createjs.Ticker.setPaused(paused);
-	document.getElementById('pause').className = (document.getElementById('pause').className == "" ? "activated" : "");
+    if(paused){
+        document.getElementById("pause").innerHTML = "Resume";
+    } else{
+        document.getElementById("pause").innerHTML = "Pause";
+    }
 }
 
-ping.prototype = new createjs.Shape();
-ping.prototype.constructor = ping;
 
-function ping(x,y){
-    this.x = x;
-    this.y = y;
-    this.addEventListener("click",mouseHandler);
-    this.graphics.beginStroke("black").beginFill("#F00").drawCircle(0,0,5);
-    stage.addChild(this);
+
+function showDialog(text, pause){
+    // for(var i = 0; i < 3; i++){
+    //     contentcontainer.children[i].removeAllChildren();
+    // }
+    // contentcontainer.removeAllChildren();
+    if(dBox == null){
+        dBox = new createjs.Shape();
+        dBox.graphics.beginFill("#fff").drawRect(0,0,900,150);
+        contentcontainer.addChild(dBox);
+    }
+
+    document.getElementById("dialog").innerHTML = text;
+    dialog = new createjs.DOMElement(document.getElementById("dialog"));
+    dialog.x = 200;
+    dialog.y = 470;
+    contentcontainer.addChild(dialog);
+
+    popsize.htmlElement.style.display = "none";
+    heatPref.htmlElement.style.display = "none";
+    waterPref.htmlElement.style.display = "none";
+    nutrientPref.htmlElement.style.display = "none";
+    document.getElementById("continue").style.display = "block";
+    document.getElementById("pause").style.display = "none";
+    if(pause){
+        createjs.Ticker.setPaused(true);
+    }
+    uiStage.update();
+}
+
+function resume(){
+    popsize.htmlElement.style.display = "block";
+    heatPref.htmlElement.style.display = "block";
+    waterPref.htmlElement.style.display = "block";
+    nutrientPref.htmlElement.style.display = "block";
+    document.getElementById("continue").style.display = "none";
+    document.getElementById("pause").style.display = "block";
+
+    document.getElementById("dialog").innerHTML = "";
+    contentcontainer.removeChild(dialog, dBox);
+    continue_tut = true;
+    createjs.Ticker.setPaused(false);
 }

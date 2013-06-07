@@ -9,23 +9,19 @@
 
 var naturalDisasters = [[0],[.01, .02], [.03, .04]];
 var currentDisaster;
-var disastX;
-var disastY;
 var disastSeverity;
 
 Map.prototype.natDisaster = function(){
-	var index = Math.random();
-	for (var x = 0; x < naturalDisasters.length; x++){
-		for (var y = 0; y < naturalDisasters[x].length; y++){
-			if(index < naturalDisasters[x][y]){
-				currentDisaster = x * 10 + y;
-				disastX = Math.abs(Math.random()*(Map.cols - chunkWidth));
-				disastY = Math.abs(Math.random()*(Map.rows - chunkHeight)); 
-				this.disasterRun();
-				return;
-			}
-		}
-	}
+	// var index = Math.random();
+	// for (var x = 0; x < naturalDisasters.length; x++){
+	// 	for (var y = 0; y < naturalDisasters[x].length; y++){
+	// 		if(index < naturalDisasters[x][y]){
+	// 			currentDisaster = x * 10 + y;
+	// 			this.disasterRun();
+	// 			return;
+	// 		}
+	// 	}
+	// }
 }
 
 Map.prototype.disasterRun = function(){
