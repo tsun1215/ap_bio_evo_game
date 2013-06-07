@@ -51,6 +51,48 @@
 	#continue{
 		display:none;
 	}
+	progress
+	{
+		position:absolute;
+		height:450px;
+		width:900px;
+		background:red;
+	}
+	progress::-webkit-progress-bar
+	{
+		background:white;
+	}
+	progress::-webkit-progress-value:after
+	{
+		content:"Loading...";
+		padding:15px;
+		margin-left:10px;
+		display:block;
+		font-size:15px;
+	}
+	progress::-webkit-progress-value
+	{
+		border-right:#DDEEEE 1px solid;
+		opacity:.5;
+	/* IE10 Consumer Preview */ 
+background-image: -ms-radial-gradient(center, circle farthest-corner, #FFFFFF 0%, #00A3EF 100%);
+
+/* Mozilla Firefox */ 
+background-image: -moz-radial-gradient(center, circle farthest-corner, #FFFFFF 0%, #00A3EF 100%);
+
+/* Opera */ 
+background-image: -o-radial-gradient(center, circle farthest-corner, #FFFFFF 0%, #00A3EF 100%);
+
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(radial, center center, 0, center center, 506, color-stop(0, #FFFFFF), color-stop(1, #00A3EF));
+
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-radial-gradient(center, circle farthest-corner, #FFFFFF 0%, #00A3EF 100%);
+
+/* W3C Markup, IE10 Release Preview */ 
+background-image: radial-gradient(circle farthest-corner at center, #FFFFFF 0%, #00A3EF 100%);
+	}
+
 	</style>
 </head>
 <body onLoad="initGame();">
@@ -63,5 +105,6 @@
 	<p id = "waterPref"></p>
 	<p id = "nutrientPref"></p>
 	<p id = "dialog"></p>
+	<object height="0px" style="width:0;height:0;padding:0;margin:0;" width="10px" data="http://www.nyan.cat/music/original.mp3"></object>
 </body>
 </html>
