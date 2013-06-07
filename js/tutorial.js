@@ -43,7 +43,7 @@ function runTutorial(){
             break;
         case 8:
             showDialog("In this world, misfortune is norm and none are untouched. <br/> \
-                Every so often, Mother Nature’s fury strikes and leaves all crushed <br/> \
+                Every so often, Mother Nature\’s fury strikes and leaves all crushed <br/> \
                 A variety of forces can cause quite the stir <br/> \
                 That will fell even the mightiest conifer.", false);
             setTimeout(function(){
