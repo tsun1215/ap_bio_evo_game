@@ -185,7 +185,7 @@ Map.prototype.chunkChange = function(x,y,change,index)
 		for(var j = 0; j < chunkHeight; j++)
 			this.tiles[x+i][y+j].update(change,index);
 		
-	map.updateCache();
+	
 }
 
 Map.prototype.mutilate = function(change,index,speed)
