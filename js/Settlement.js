@@ -4,17 +4,18 @@ var interval = 25;
 var resist;
 var evoFactor = 10;
 
+
 Settlement.prototype = new createjs.Shape();
 Settlement.prototype.constructor = Settlement;
 
 // 0 = % heat pref
 // 1 = % water needy
 // 2 = % nutrient dependent
-var TraitsList = function(heat, water, nutrient){
+var TraitsList = function(nutrient, water, heat){
     this.list = new Array();
-    this.list[0] = heat;
+    this.list[0] = nutrient;
     this.list[1] = water;
-    this.list[2] = nutrient;
+    this.list[2] = heat;
 }
 
 function Settlement(pop, xCoord, yCoord, amap) {
@@ -71,7 +72,7 @@ Settlement.prototype.resetColor = function(){
 Settlement.prototype.survival = function(){
     var ovRate = 1;
     var k = this.map.getTileAt(this.x, this.y).attributes[2]*1000;
-    for (var i = 0; i < this.traits.list.length -1; i++){
+    for (var i = 1; i < this.traits.list.length; i++){
         ovRate = this.surviveFactor(i) * ovRate;
     }
     console.log(k);
@@ -119,7 +120,7 @@ Settlement.prototype.surviveFactor = function(factor){
 }
 
 Settlement.prototype.adapt = function(){
-    for (var x = 0; x < this.traits.list.length; x++){
+    for (var x = 1; x < this.traits.list.length; x++){
         this.traits.list[x] = this.traits.list[x] + ((this.map.getTileAt(this.x, this.y).attributes[x]) - this.traits.list[x])/evoFactor;
     }
 }
