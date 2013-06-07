@@ -1,3 +1,6 @@
+var dBox;
+var dialog;
+
 function refresh(event) {
     if(!createjs.Ticker.getPaused()){
         if(createjs.Ticker.getTicks() % 45 == 0){
@@ -86,16 +89,35 @@ function showDialog(text){
     //     contentcontainer.children[i].removeAllChildren();
     // }
     // contentcontainer.removeAllChildren();
-    var dBox = new createjs.Shape();
+    dBox = new createjs.Shape();
     dBox.graphics.beginFill("#fff").drawRect(0,0,900,150);
     contentcontainer.addChild(dBox);
-    console.log(dBox);
-    uiStage.update();
 
     document.getElementById("dialog").innerHTML = text;
-    var dialog = new createjs.DOMElement(document.getElementById("dialog"));
+    dialog = new createjs.DOMElement(document.getElementById("dialog"));
     dialog.x = 450;
     dialog.y = 500;
     contentcontainer.addChild(dialog);
 
+    popsize.htmlElement.style.display = "none";
+    heatPref.htmlElement.style.display = "none";
+    waterPref.htmlElement.style.display = "none";
+    nutrientPref.htmlElement.style.display = "none";
+    document.getElementById("continue").style.display = "block";
+    document.getElementById("pause").style.display = "none";
+    setPause();
+    uiStage.update();
+}
+
+function resume(){
+    popsize.htmlElement.style.display = "block";
+    heatPref.htmlElement.style.display = "block";
+    waterPref.htmlElement.style.display = "block";
+    nutrientPref.htmlElement.style.display = "block";
+    document.getElementById("continue").style.display = "none";
+    document.getElementById("pause").style.display = "block";
+
+    document.getElementById("dialog").innerHTML = "";
+    contentcontainer.removeChild(dialog, dBox);
+    setPause();
 }

@@ -27,6 +27,10 @@ function initUI(){
 	pauseButton.y = 475;
 	controlContainer.addChild(pauseButton);
 
+	var cButton = new createjs.DOMElement(document.getElementById("continue"));
+	cButton.x = 50;
+	cButton.y = 475;
+	controlContainer.addChild(cButton);
 
 	popsize = new createjs.DOMElement(document.getElementById("popsize"));
 	popsize.x = 10;
@@ -68,6 +72,12 @@ function updateUI(focus){
 	currentName.x = 175;
 	currentName.y = 10;
 	contentcontainer.children[1].addChild(currentName);
+
+    // popsize.htmlElement.style.display = "block";
+    // heatPref.htmlElement.style.display = "block";
+    // waterPref.htmlElement.style.display = "block";
+    // nutrientPref.htmlElement.style.display = "block";
+    // document.getElementById("pause").style.display = "block";
 
 	popsize.htmlElement.innerHTML = "Population size: " + focus.population;
 	heatPref.htmlElement.innerHTML = "Heat Preference: " + focus.traits.list[0];

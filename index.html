@@ -43,12 +43,16 @@
 	#dialog{
 		font-size:24px;
 	}
+	#continue{
+		display:none;
+	}
 	</style>
 </head>
 <body onLoad="initGame();">
 	<canvas id="screen" width="900" height="600"></canvas>
 	<canvas id="uiStage" width = "900" height = "150"></canvas>
 	<button id = "pause" onclick = "setPause()"> Pause </button>
+	<button id = "continue" onclick = "resume()">Continue</button>
 	<p id = "popsize"> </p>
 	<p id = "heatPref"></p>
 	<p id = "waterPref"></p>
