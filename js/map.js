@@ -103,6 +103,7 @@ function drawTile(i,j){
     pixel.graphics.beginFill(color).drawRect(0,0,mapArr.tile_width,mapArr.tile_width);
     pixel.x = i*mapArr.tile_width;
     pixel.y = j*mapArr.tile_width;
+	mapArr.tiles[i][j].pixel = pixel;
     map.addChild(pixel);
 }
 
@@ -175,10 +176,58 @@ Map.prototype.generateAt = function(i,j)
 function Tile(attrib)
 {
 	this.attributes = attrib;
+	this.pixel = null;
+}
+
+Map.prototype.chunkChange = function(x,y,change,index)
+{
+	for(var i = 0; i<chunkWidth; i++)
+		for(var j = 0; j < chunkHeight; j++)
+			this.tiles[x+i][y+j].update(change,index);
+		
+	map.updateCache();
+}
+
+Tile.prototype.update = function(change,index)
+{
+	this.attributes[index] *= change;
+	var temp = Math.floor(this.attributes[0] * 255);
+    var water = Math.floor(this.attributes[1] * 255);
+    var nut = Math.floor(this.attributes[2] * 255);
+    var color;
+    if(water > 150)
+    {
+        var newwater = 255-water;
+        newwater += 1.24;
+        newwater *= 1.6;
+        newwater = Math.floor(newwater);
+        color = rgbToHex(0,0,newwater);
+    }
+    else if(water > 140)
+    {
+        color = rgbToHex(255,255,nut);
+    }
+    else if(water > 70)
+    {
+        color = rgbToHex(10,nut,10);
+    }
+    else
+    {
+        color = rgbToHex(255,255,nut);
+    }
+    if ( water > 100 && water < 120 && temp < 100)
+    {
+        var newwater = Math.floor(2 * (255-water));
+        newwater = (newwater >255 ? 255: newwater);
+        color = rgbToHex(newwater,newwater,newwater);
+    }
+    this.pixel.graphics.clear().beginFill(color).drawRect(0,0,mapArr.tile_width,mapArr.tile_width);
 }
 
 function rgbToHex(r, g, b) {
     return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
+
+
 
 
