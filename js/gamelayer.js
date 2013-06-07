@@ -72,23 +72,14 @@ function stageEventHandler(event){
 function setPause(){
     paused = !createjs.Ticker.getPaused();
     createjs.Ticker.setPaused(paused);
-    if(pause){
+    if(paused){
         document.getElementById("pause").innerHTML = "Resume";
     } else{
         document.getElementById("pause").innerHTML = "Pause";
     }
 }
 
-ping.prototype = new createjs.Shape();
-ping.prototype.constructor = ping;
 
-function ping(x,y){
-    this.x = x;
-    this.y = y;
-    this.addEventListener("click",mouseHandler);
-    this.graphics.beginStroke("black").beginFill("#F00").drawCircle(0,0,5);
-    stage.addChild(this);
-}
 
 function showDialog(text){
     // for(var i = 0; i < 3; i++){
