@@ -3,6 +3,7 @@ var arbRValue = .5;
 var interval = 25;
 var resist;
 var evoFactor = 10;
+var speciesList = [0];
 
 
 Settlement.prototype = new createjs.Shape();
@@ -28,7 +29,6 @@ function Settlement(pop, xCoord, yCoord, amap) {
     this.traits = new TraitsList(.1, .25, .85);
     this.destinationX;
     this.destinationY;
-    this.speed;
     this.addEventListener("click", mouseHandler);
     this.addEventListener("dblclick", settMoveHandler);
     this.color = rgbToHex(Math.floor(255*this.traits.list[0]),Math.floor(255*this.traits.list[1]),Math.floor(255*this.traits.list[2]));
@@ -36,6 +36,12 @@ function Settlement(pop, xCoord, yCoord, amap) {
     stage.addChild(this);
     sList.push(this);
     this.map = amap;
+    this.speciesNumber = speciesList[speciesList.length - 1];
+}
+
+Settlement.prototype.speciate = function(){
+    this.speciesNumber = speciesList.length;
+    speciesList.push(this.speciesNumber);
 }
 
 Settlement.prototype.death = function() {
@@ -122,8 +128,12 @@ Settlement.prototype.surviveFactor = function(factor){
 }
 
 Settlement.prototype.adapt = function(){
-    for (var x = 1; x < this.traits.list.length; x++){
+    for (var x = 1; x < this.traits.list.length; x++){    
+        var traitCheck = this.traits.list[x] - .5;
         this.traits.list[x] = this.traits.list[x] + ((this.map.getTileAt(this.x, this.y).attributes[x]) - this.traits.list[x])/evoFactor;
+        if ((this.traits.list[x] - .5)/traitCheck < 0){
+        this.speciate();
+        }
     }
 }
 
@@ -206,13 +216,15 @@ Settlement.prototype.checkMerge = function(xCoord, yCoord) {
 
 Settlement.prototype.checkMergeHelper = function() {
     if (this.mergeSett != null) {
-        if(Math.abs(this.x - this.mergeSett.x) < 8 && Math.abs(this.y - this.mergeSett.y) < 8) {
-            this.traits.list[0] = ((this.traits.list[0] * this.population) + (this.mergeSett.traits.list[0] * this.mergeSett.population))/(this.population + this.mergeSett.population);
-            this.population += this.mergeSett.population;
+        if (this.mergeSett.speciesNumber == this.speciesNumber){
+            if(Math.abs(this.x - this.mergeSett.x) < 8 && Math.abs(this.y - this.mergeSett.y) < 8) {
+                this.traits.list[0] = ((this.traits.list[0] * this.population) + (this.mergeSett.traits.list[0] * this.mergeSett.population))/(this.population + this.mergeSett.population);
+                this.population += this.mergeSett.population;
             
-            stage.removeChild(this.mergeSett);
-            stage.removeChild(this.mergeSett.popTag);
-            this.mergeSett.population = 0;
+                stage.removeChild(this.mergeSett);
+                stage.removeChild(this.mergeSett.popTag);
+                this.mergeSett.population = 0;
+            }
         }
     }
 }

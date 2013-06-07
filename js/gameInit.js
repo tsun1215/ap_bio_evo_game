@@ -34,7 +34,8 @@ function startGame(){
     // Moves map and settlement to center
     stage.x = -(mapArr.rows*mapArr.tile_width)/2+300;
     stage.y = -(mapArr.cols*mapArr.tile_width)/2+300;
-    new Settlement(200,700,450, mapArr);    
+    new Settlement(200,700,450, mapArr);
+   
 
     initScreen();
     addEventListeners();

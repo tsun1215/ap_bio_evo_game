@@ -6,6 +6,7 @@ var waterPref;
 var nutrientPref;
 var popsize;
 var currentName;
+var species;
 
 function initUI(){
 	contentcontainer = new createjs.Container();
@@ -57,6 +58,11 @@ function initUI(){
 	nutrientPref.y = 560;
 	mainContainer.addChild(nutrientPref);
 
+	species = new createjs.DOMElement(document.getElementById("species"));
+	species.x = 10;
+	species.y = 580;
+	mainContainer.addChild(species);
+
 	contentcontainer.addChild(minimapContainer);
 	// minimapContainer.y = 450;
 	contentcontainer.addChild(mainContainer);
@@ -82,8 +88,9 @@ function updateUI(focus){
 
 	currentPop.htmlElement.innerHTML = "Current Population";
 	popsize.htmlElement.innerHTML = "Population size: " + focus.population;
-	heatPref.htmlElement.innerHTML = "Heat Preference: " + focus.traits.list[0];
-	waterPref.htmlElement.innerHTML = "Water Preference: " + focus.traits.list[1];
-	nutrientPref.htmlElement.innerHTML = "Nutrient Preference: " + focus.traits.list[2];
+	heatPref.htmlElement.innerHTML = "Prefered Temperature: " + (focus.traits.list[2] * 100).toFixed(2) + " F";
+	waterPref.htmlElement.innerHTML = "Humidity Preference " + (focus.traits.list[1] * 100).toFixed(2) + "%";
+	species.htmlElement.innerHTML = "Species Number: " + focus.speciesNumber;
+	// nutrientPref.htmlElement.innerHTML = "Nutrient Preference: " + focus.traits.list[2];
 }
 
