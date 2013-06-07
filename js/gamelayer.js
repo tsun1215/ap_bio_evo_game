@@ -95,7 +95,7 @@ function showDialog(text){
 
     document.getElementById("dialog").innerHTML = text;
     dialog = new createjs.DOMElement(document.getElementById("dialog"));
-    dialog.x = 450;
+    dialog.x = 200;
     dialog.y = 500;
     contentcontainer.addChild(dialog);
 
