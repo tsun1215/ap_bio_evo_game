@@ -1,3 +1,6 @@
+var dBox;
+var dialog;
+
 function refresh(event) {
     if(!createjs.Ticker.getPaused()){
         if(createjs.Ticker.getTicks() % 45 == 0){
@@ -86,16 +89,49 @@ function stageEventHandler(event){
 function setPause(){
     paused = !createjs.Ticker.getPaused();
     createjs.Ticker.setPaused(paused);
-	document.getElementById('pause').className = (document.getElementById('pause').className == "" ? "activated" : "");
+    if(paused){
+        document.getElementById("pause").innerHTML = "Resume";
+    } else{
+        document.getElementById("pause").innerHTML = "Pause";
+    }
 }
 
-ping.prototype = new createjs.Shape();
-ping.prototype.constructor = ping;
 
-function ping(x,y){
-    this.x = x;
-    this.y = y;
-    this.addEventListener("click",mouseHandler);
-    this.graphics.beginStroke("black").beginFill("#F00").drawCircle(0,0,5);
-    stage.addChild(this);
+
+function showDialog(text){
+    // for(var i = 0; i < 3; i++){
+    //     contentcontainer.children[i].removeAllChildren();
+    // }
+    // contentcontainer.removeAllChildren();
+    dBox = new createjs.Shape();
+    dBox.graphics.beginFill("#fff").drawRect(0,0,900,150);
+    contentcontainer.addChild(dBox);
+
+    document.getElementById("dialog").innerHTML = text;
+    dialog = new createjs.DOMElement(document.getElementById("dialog"));
+    dialog.x = 200;
+    dialog.y = 500;
+    contentcontainer.addChild(dialog);
+
+    popsize.htmlElement.style.display = "none";
+    heatPref.htmlElement.style.display = "none";
+    waterPref.htmlElement.style.display = "none";
+    nutrientPref.htmlElement.style.display = "none";
+    document.getElementById("continue").style.display = "block";
+    document.getElementById("pause").style.display = "none";
+    setPause();
+    uiStage.update();
+}
+
+function resume(){
+    popsize.htmlElement.style.display = "block";
+    heatPref.htmlElement.style.display = "block";
+    waterPref.htmlElement.style.display = "block";
+    nutrientPref.htmlElement.style.display = "block";
+    document.getElementById("continue").style.display = "none";
+    document.getElementById("pause").style.display = "block";
+
+    document.getElementById("dialog").innerHTML = "";
+    contentcontainer.removeChild(dialog, dBox);
+    setPause();
 }

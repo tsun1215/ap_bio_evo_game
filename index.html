@@ -41,15 +41,12 @@
 		font-family: "Arial";
 		font-size:12px;
 	}
-	
-	.activated
-	{
-		background-color:rgba(255,0,0,.5);
+	#dialog{
+		font-size:24px;
+		width:500px;
 	}
-	
-	.activated:hover
-	{
-		background-color:rgba(255,0,0,1);
+	#continue{
+		display:none;
 	}
 	</style>
 </head>
@@ -57,10 +54,11 @@
 	<canvas id="screen" width="900" height="600"></canvas>
 	<canvas id="uiStage" width = "900" height = "150"></canvas>
 	<button id = "pause" onclick = "setPause()"> Pause </button>
-	<button id = "ping" onclick = "setPing()"> Ping </button>
+	<button id = "continue" onclick = "resume()">Continue</button>
 	<p id = "popsize"> </p>
 	<p id = "heatPref"></p>
 	<p id = "waterPref"></p>
 	<p id = "nutrientPref"></p>
+	<p id = "dialog"></p>
 </body>
 </html>

@@ -48,7 +48,6 @@ function initSight() {
     sight.graphics.beginFill("blue").drawCircle(0,0,9);
     stage.addChild(sight);
     sight.alpha = 0;
-    sight.addEventListener("click", mouseHandler);
 }
 
 function aimSight(xCoords, yCoords) {
