@@ -162,10 +162,11 @@ Map.prototype.generateAt = function(i,j)
 {
 	var si = i/this.rows * 3.5;
 	var sj = j/this.cols * 3.5;
-	var temp = PerlinNoise.noise( si, sj, this.seeds[0]);
-	var water = PerlinNoise.noise( si, sj, this.seeds[1]);
-	var nut = PerlinNoise.noise( si, sj, this.seeds[2]);
-	var passingIn = new Array(temp, water, nut);
+	var passingIn = new Array();
+	for(var k = 0; k < this.seeds.length; k++)
+	{
+		passingIn.push(PerlinNoise.noise( si, sj, this.seeds[0]));
+	}
 	this.tiles[i][j] = new Tile(passingIn);
 }
 
