@@ -30,10 +30,10 @@ function refresh(event) {
             }
         }
         if(createjs.Ticker.getTicks() % 225 == 0){
-            // console.log("Recalculating traits");
-            // for(i in sList){
-            //     sList[i].adapt();
-            // }
+            console.log("Recalculating traits");
+            for(i in sList){
+                sList[i].adapt();
+            }
         }
         for(i in sList) {
             sList[i].migrateOnce(event.delta/10);
