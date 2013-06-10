@@ -1,12 +1,13 @@
 var dBox;
 var dialog;
 var movementFreq = 0;
-var tutorial_ticker = 0;
+var tutorial_ticker = 90;
+var tut_speed = 50;
 
 function refresh(event) {
-    if(continue_tut && !createjs.Ticker.getPaused()){
+    if(!tut_end && continue_tut && !createjs.Ticker.getPaused()){
         tutorial_ticker++;
-        if(tutorial_ticker%200==0){
+        if(tutorial_ticker%tut_speed==0){
             runTutorial();
         }
     }

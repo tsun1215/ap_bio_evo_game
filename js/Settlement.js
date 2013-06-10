@@ -12,11 +12,11 @@ Settlement.prototype.constructor = Settlement;
 // 0 = % heat pref
 // 1 = % water needy
 // 2 = % nutrient dependent
-var TraitsList = function(nutrient, water, heat){
+var TraitsList = function(heat, water, nutrient){
     this.list = new Array();
-    this.list[0] = nutrient;
+    this.list[0] = heat;
     this.list[1] = water;
-    this.list[2] = heat;
+    this.list[2] = nutrient;
 }
 
 function Settlement(pop, xCoord, yCoord, amap) {
@@ -26,7 +26,7 @@ function Settlement(pop, xCoord, yCoord, amap) {
     this.movingPop = pop;
     this.x = xCoord;
     this.y = yCoord;
-    this.traits = new TraitsList( .1, .1, .1);
+    this.traits = new TraitsList( .8, .1, .1);
     this.destinationX;
     this.destinationY;
     this.addEventListener("click", mouseHandler);
@@ -46,6 +46,19 @@ Settlement.prototype.speciate = function(){
 
 Settlement.prototype.death = function() {
     this.population = 0;
+    if(tutIndex > 5 && tutIndex<15){
+        if(shown_death){
+            showDialog("A population has died! You are bad <br/> \
+                and you should feel bad!", false);
+        }else{            
+            showDialog("<strong>A population has died!</strong> <br/> \
+                The environment is not kind, to those with genes misaligned <br/> \
+                Death comes fast, the unfit don't last <br/> \
+                For the lucky rest, their genes were the best.", false);
+            shown_death = true;
+            continue_tut = false; 
+        }
+    }
 }
 
 Settlement.prototype.moveTo = function(xCoord, yCoord){
@@ -62,6 +75,8 @@ Settlement.prototype.splitTo = function(xCoord, yCoord, splitPop){
         settle.destinationX = xCoord;
         settle.destinationY = yCoord;
         this.population = this.population - this.movingPop;
+        var loc = stage.localToGlobal(xCoord, yCoord);
+        settle.checkMerge(loc.x, loc.y);
     }
 }
 
@@ -80,8 +95,10 @@ Settlement.prototype.resetColor = function(){
 Settlement.prototype.survival = function(){
     var ovRate = 1;
     // var k = arbKFactor;
-    var k = this.map.getTileAt(this.x, this.y).attributes[0]*1000;
-    for (var i = 1; i < this.traits.list.length; i++){
+    var k = this.map.getTileAt(this.x, this.y).attributes[2]*1000;
+    console.log(this.map.getTileAt(this.x, this.y).attributes);
+    for (var i = 0; i < this.traits.list.length - 1; i++){
+        // console.log(i);
         ovRate = this.surviveFactor(i) * ovRate;
     }
     if (ovRate > 1){
@@ -93,7 +110,7 @@ Settlement.prototype.survival = function(){
         this.population = this.population + Math.floor(ovRate * (this.population * (1 - (this.population/k))));
         console.log(this.population);
     } else {
-        this.population = Math.floor(this.population * ovRate);
+        this.population = Math.floor(this.population * Math.sqrt(ovRate));
     }   
     this.previousPop = this.population;
     this.population = this.population + Math.floor(arbRValue * (this.population * (1 - (this.population/k))));
@@ -102,11 +119,15 @@ Settlement.prototype.survival = function(){
         this.movingPop = this.population;
         updatePopAdjuster();
     }
+    if(this.population<0){
+        this.death();
+    }
 }
 
 Settlement.prototype.surviveFactor = function(factor){
     
     var fact =  this.map.getTileAt(this.x,this.y).attributes[factor] * 100;
+    // console.log(fact);
     // var calcInt = fact * 2;
     // console.log(fact);
     // var domGrowthRate;
@@ -143,7 +164,7 @@ Settlement.prototype.surviveFactor = function(factor){
 }
 
 Settlement.prototype.adapt = function(){
-    for (var x = 1; x < this.traits.list.length; x++){    
+    for (var x = 0; x < this.traits.list.length - 1; x++){    
         var traitCheck = this.traits.list[x] - .5;
         this.traits.list[x] = this.traits.list[x] + ((this.map.getTileAt(this.x, this.y).attributes[x]) - this.traits.list[x])/evoFactor;
         if ((this.traits.list[x] - .5)/traitCheck < 0){

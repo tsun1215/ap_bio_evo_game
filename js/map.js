@@ -1,3 +1,4 @@
+var level = 1;
 function mapArrReady()
 {
     return this.ready;
@@ -16,7 +17,7 @@ function initMap()
     progress.setAttribute("max","100");
     progress.setAttribute("value","0");
     document.body.appendChild(progress);
-    mapArr = new Map(300,200,5, [1,2,3]);
+    mapArr = new Map(300,200,5, [level,level+1,level+2]);
     progress.attributes.max.value=(mapArr.rows*mapArr.cols)*2;
     mapArr.generate();
 
@@ -69,7 +70,7 @@ function drawMap(){
 
 
 function drawTile(i,j){
-    var temp = Math.floor(mapArr.tiles[i][j].attributes[0] * 255);
+    var heat = Math.floor(mapArr.tiles[i][j].attributes[0] * 255);
     var water = Math.floor(mapArr.tiles[i][j].attributes[1] * 255);
     var nut = Math.floor(mapArr.tiles[i][j].attributes[2] * 255);
     var color;
@@ -93,7 +94,7 @@ function drawTile(i,j){
     {
         color = rgbToHex(255,255,nut);
     }
-    if ( water > 100 && water < 120 && temp < 100)
+    if ( water > 100 && water < 120 && heat < 100)
     {
         var newwater = Math.floor(2 * (255-water));
         newwater = (newwater >255 ? 255: newwater);
@@ -209,6 +210,7 @@ Tile.prototype.update = function(change,index)
 {
 	this.attributes[index] *= change;
 	this.attributes[index] = (this.attributes[index] > 1 ? .99999999 : this.attributes[index]);
+
 	var temp = Math.floor(this.attributes[0] * 255);
     var water = Math.floor(this.attributes[1] * 255);
     var nut = Math.floor(this.attributes[2] * 255);
