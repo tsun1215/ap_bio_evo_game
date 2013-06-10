@@ -30,9 +30,9 @@ Map.prototype.natDisaster = function(){
 Map.prototype.disasterRun = function(){
 	var factorAffected = Math.floor(currentDisaster/10);
 	if(currentDisaster % 2 == 0) {
-		disastSeverity = .5;
+		disastSeverity = .9;
 	} else {
-		disastSeverity = 1.5;
+		disastSeverity = 1.2;
 	}
 	this.mutilate(disastSeverity, factorAffected, 0);
 	currentDisaster = null;

@@ -46,16 +46,16 @@ Settlement.prototype.speciate = function(){
 
 Settlement.prototype.death = function() {
     this.population = 0;
-    shown_death = true;
     if(tutIndex > 5 && tutIndex<15){
         if(shown_death){
             showDialog("A population has died! You are bad <br/> \
                 and you should feel bad!", false);
         }else{            
-            showDialog("Success is not universal as the environment is not kind. <br/> \
-                Individuals and populations, too, are unfortunately maligned. <br/> \
-                Survival is difficult as many fall victim to the wrath of Mother Earth, <br/> \
-                Genetic variation due to a dearth.", false);
+            showDialog("<strong>A population has died!</strong> <br/> \
+                The environment is not kind, to those with genes misaligned <br/> \
+                Death comes fast, the unfit don't last <br/> \
+                For the lucky rest, their genes were the best.", false);
+            shown_death = true;
             continue_tut = false; 
         }
     }
