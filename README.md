@@ -1,5 +1,5 @@
 # AP Biology: Evolutionary Fitness Game #
-*Table of Contents*
+**Table of Contents**
 * [Summary] (#summary "Game summary")
 * [Controls] (#controls "Game controls")
 
